@@ -106,13 +106,13 @@ public class GeneratedProductController {
 		// [..]
 	}
 
-	// [more method to access relationships]
+	// [more methods to access relationships]
 }
 ```
 
 and exposes basic REST methods like list, get, create, replace, update and delete entities and its relationships.
 
-For a full example check out the [generated-rest example]().
+For a full example check out the [generated-rest example](https://github.com/nerdfactor/Generated-Example).
 
 ## Important Notice
 
