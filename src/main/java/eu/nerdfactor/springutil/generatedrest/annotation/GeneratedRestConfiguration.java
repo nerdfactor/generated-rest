@@ -48,4 +48,10 @@ public @interface GeneratedRestConfiguration {
 	 * meta information to the response (i.e. api version).
 	 */
 	Class<?> dataWrapper() default Object.class;
+
+	/**
+	 * Namespace for Dto Classes. This will be used to restrict discovery of Dto classes to this
+	 * namespace.
+	 */
+	String dtoNamespace() default "";
 }

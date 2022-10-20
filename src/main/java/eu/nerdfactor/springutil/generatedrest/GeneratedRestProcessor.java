@@ -3,12 +3,15 @@ package eu.nerdfactor.springutil.generatedrest;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import eu.nerdfactor.springutil.generatedrest.annotation.GeneratedRestConfiguration;
 import eu.nerdfactor.springutil.generatedrest.annotation.GeneratedRestController;
 import eu.nerdfactor.springutil.generatedrest.annotation.GeneratedRestSecurity;
 import eu.nerdfactor.springutil.generatedrest.config.ControllerConfiguration;
 import eu.nerdfactor.springutil.generatedrest.config.SecurityConfiguration;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.processing.*;
 import javax.lang.model.element.Element;
@@ -16,9 +19,7 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Annotation processor for generated rest controllers.
@@ -73,7 +74,6 @@ public class GeneratedRestProcessor extends AbstractProcessor {
 			});
 		}
 
-
 		// Get all DynamicRestController annotations and gather information from the specified
 		// entity in order to create a ControllerConfiguration.
 		for (Element element : roundEnvironment.getElementsAnnotatedWith(GeneratedRestController.class)) {
@@ -87,6 +87,7 @@ public class GeneratedRestProcessor extends AbstractProcessor {
 					.withPrefix(generatedConfig.getOrDefault("classNamePrefix", "Generated"))
 					.withPattern(generatedConfig.getOrDefault("classNamePattern", "{PREFIX}{NAME}"))
 					.withDataWrapper(ClassName.bestGuess(generatedConfig.getOrDefault("dataWrapper", Object.class.getCanonicalName())))
+					.withDtoClasses(this.findDtoClasses(roundEnvironment, generatedConfig.getOrDefault("dtoNamespace", "")))
 					.build();
 			controllers.put(config.getClassName().simpleName(), config);
 		}
@@ -122,5 +123,26 @@ public class GeneratedRestProcessor extends AbstractProcessor {
 		});
 
 		return true;
+	}
+
+	/**
+	 * Find a Map of all possible Dto Classes for auto discovery.
+	 *
+	 * @param environment The current environment.
+	 * @param dtoNamespace A namespace for possible restriction to the search.
+	 * @return A Map of all Classes that might be used.
+	 */
+	private Map<String, List<TypeName>> findDtoClasses(@NotNull RoundEnvironment environment, @Nullable String dtoNamespace) {
+		final Map<String, List<TypeName>> dtoClasses = new HashMap<>();
+		environment.getRootElements().forEach(element -> {
+			if (dtoNamespace == null || dtoNamespace.isEmpty() || element.toString().startsWith(dtoNamespace)) {
+				String simpleName = element.getSimpleName().toString();
+				if (!dtoClasses.containsKey(simpleName)) {
+					dtoClasses.put(simpleName, new ArrayList<>());
+				}
+				dtoClasses.get(simpleName).add(TypeName.get(element.asType()));
+			}
+		});
+		return dtoClasses;
 	}
 }

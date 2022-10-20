@@ -6,7 +6,9 @@ import com.squareup.javapoet.TypeName;
 import eu.nerdfactor.springutil.generatedrest.GeneratedRestUtil;
 import eu.nerdfactor.springutil.generatedrest.annotation.GeneratedRestController;
 import eu.nerdfactor.springutil.generatedrest.annotation.IdAccessor;
-import eu.nerdfactor.springutil.generatedrest.data.*;
+import eu.nerdfactor.springutil.generatedrest.data.DataAccessor;
+import eu.nerdfactor.springutil.generatedrest.data.DataMapper;
+import eu.nerdfactor.springutil.generatedrest.data.DataMerger;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,10 +17,8 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static javax.lang.model.util.ElementFilter.methodsIn;
 
@@ -38,6 +38,8 @@ public class ControllerConfigurationBuilder {
 	private String classNamePattern;
 
 	private TypeName dataWrapper;
+
+	private Map<String, List<TypeName>> dtoClasses;
 
 	/**
 	 * @param element The annotated Element.
@@ -70,6 +72,11 @@ public class ControllerConfigurationBuilder {
 
 	public ControllerConfigurationBuilder withDataWrapper(@NotNull TypeName dataWrapper) {
 		this.dataWrapper = dataWrapper;
+		return this;
+	}
+
+	public ControllerConfigurationBuilder withDtoClasses(@NotNull Map<String, List<TypeName>> dtoClasses) {
+		this.dtoClasses = dtoClasses;
 		return this;
 	}
 
@@ -160,10 +167,10 @@ public class ControllerConfigurationBuilder {
 		Map<String, RelationConfiguration> relations = new HashMap<>();
 		if (annotatedValues.get("withRelations").equals("true")) {
 			// Get all compiled classes in order to determine dto for entity.
-			Map<String, TypeName> classes = this.environment.getRootElements().stream().collect(Collectors.toMap(ele -> ele.getSimpleName().toString(), ele -> TypeName.get(ele.asType())));
+
 
 			// Collect all the relations.
-			relations = RelationConfiguration.builder().withElement(entityElement).withUtils(this.elementUtils).withClasses(classes).withDtos(withDto).build();
+			relations = RelationConfiguration.builder().withElement(entityElement).withUtils(this.elementUtils).withClasses(this.dtoClasses).withDtos(withDto).build();
 		}
 
 		return new ControllerConfiguration(GeneratedRestUtil.toClassName(generatedClassName), requestMapping, entityClass, idClass, idAccessor, withDto, withDto ? dtoClass : null, dataAccessorClass, dataMapperClass, dataMergerClass, relations, existingRequests, this.dataWrapper);

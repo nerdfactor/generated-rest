@@ -37,7 +37,7 @@ public class RelationConfigurationBuilder {
 	/**
 	 * All classes that get compiled.
 	 */
-	private Map<String, TypeName> classes;
+	private Map<String, List<TypeName>> classes;
 
 	private boolean withDtos = true;
 
@@ -54,7 +54,7 @@ public class RelationConfigurationBuilder {
 		return this;
 	}
 
-	public RelationConfigurationBuilder withClasses(Map<String, TypeName> classes) {
+	public RelationConfigurationBuilder withClasses(Map<String, List<TypeName>> classes) {
 		this.classes = classes;
 		return this;
 	}
@@ -184,13 +184,20 @@ public class RelationConfigurationBuilder {
 		return relationType;
 	}
 
-	private TypeName findDtoType(ClassName typeName, Map<String, TypeName> classes) {
+	/**
+	 * Auto discover Dto Type for the type by checking all current classes for the same name with a Dto Suffix.
+	 *
+	 * @param typeName The class for which the Dto should be found.
+	 * @param classes A map of all possible Dto classes.
+	 * @return The found Dto type or the original class type, if none was found.
+	 */
+	private TypeName findDtoType(ClassName typeName, Map<String, List<TypeName>> classes) {
 		String entityClassName = typeName.toString();
 		entityClassName = entityClassName.substring(entityClassName.lastIndexOf('.') + 1).trim();
 		entityClassName = GeneratedRestUtil.normalizeEntityName(entityClassName);
 		String dtoClassName = entityClassName + "Dto";
-		if (classes.containsKey(dtoClassName)) {
-			return (classes.get(dtoClassName));
+		if (classes.containsKey(dtoClassName) && classes.get(dtoClassName).size() == 1) {
+			return (classes.get(dtoClassName).get(0));
 		}
 		return typeName;
 	}
