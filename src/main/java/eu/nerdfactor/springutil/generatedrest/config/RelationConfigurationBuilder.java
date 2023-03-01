@@ -7,13 +7,13 @@ import eu.nerdfactor.springutil.generatedrest.GeneratedRestUtil;
 import eu.nerdfactor.springutil.generatedrest.annotation.IdAccessor;
 import eu.nerdfactor.springutil.generatedrest.annotation.Relation;
 import eu.nerdfactor.springutil.generatedrest.annotation.RelationAccessor;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 
 import javax.lang.model.element.*;
 import javax.lang.model.util.Elements;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import java.util.*;
 
 import static javax.lang.model.util.ElementFilter.fieldsIn;
