@@ -207,7 +207,7 @@ public class GeneratedRestBuilder {
 		if (config.hasExistingRequest(RequestMethod.GET, config.getRequest())) {
 			return builder;
 		}
-		GeneratedRestUtil.log("addGetAllEntitiesMethod");
+		GeneratedRestUtil.log("addGetAllEntitiesMethod", 1);
 		TypeName responseType = config.getResponse();
 		ParameterizedTypeName responseList = ParameterizedTypeName.get(ClassName.get(List.class), responseType);
 		MethodSpec.Builder method = MethodSpec
@@ -239,7 +239,7 @@ public class GeneratedRestBuilder {
 		if (config.hasExistingRequest(RequestMethod.GET, config.getRequest() + "/search")) {
 			return builder;
 		}
-		GeneratedRestUtil.log("addSearchAllEntitiesMethod");
+		GeneratedRestUtil.log("addSearchAllEntitiesMethod", 1);
 		TypeName responseType = config.getResponse();
 		ParameterizedTypeName responsePage = ParameterizedTypeName.get(ClassName.get(Page.class), responseType);
 		MethodSpec.Builder method = MethodSpec
@@ -283,7 +283,7 @@ public class GeneratedRestBuilder {
 		if (config.hasExistingRequest(RequestMethod.GET, config.getRequest() + "/{id}")) {
 			return builder;
 		}
-		GeneratedRestUtil.log("addGetEntityMethod");
+		GeneratedRestUtil.log("addGetEntityMethod", 1);
 		TypeName responseType = config.getResponse();
 		MethodSpec.Builder method = MethodSpec
 				.methodBuilder("get")
@@ -319,7 +319,7 @@ public class GeneratedRestBuilder {
 		if (config.hasExistingRequest(RequestMethod.POST, config.getRequest())) {
 			return builder;
 		}
-		GeneratedRestUtil.log("addCreateEntityMethod");
+		GeneratedRestUtil.log("addCreateEntityMethod", 1);
 		TypeName responseType = config.getResponse();
 		MethodSpec.Builder method = MethodSpec
 				.methodBuilder("create")
@@ -357,7 +357,7 @@ public class GeneratedRestBuilder {
 		if (config.hasExistingRequest(RequestMethod.PUT, config.getRequest() + "/{id}")) {
 			return builder;
 		}
-		GeneratedRestUtil.log("addSetEntityMethod");
+		GeneratedRestUtil.log("addSetEntityMethod", 1);
 		TypeName responseType = config.getResponse();
 		MethodSpec.Builder method = MethodSpec
 				.methodBuilder("set")
@@ -404,7 +404,7 @@ public class GeneratedRestBuilder {
 		if (config.hasExistingRequest(RequestMethod.PATCH, config.getRequest() + "/{id}")) {
 			return builder;
 		}
-		GeneratedRestUtil.log("addUpdateEntityMethod");
+		GeneratedRestUtil.log("addUpdateEntityMethod", 1);
 		TypeName responseType = config.getResponse();
 		MethodSpec.Builder method = MethodSpec
 				.methodBuilder("update")
@@ -452,7 +452,7 @@ public class GeneratedRestBuilder {
 		if (config.hasExistingRequest(RequestMethod.DELETE, config.getRequest() + "/{id}")) {
 			return builder;
 		}
-		GeneratedRestUtil.log("addDeleteEntityMethod");
+		GeneratedRestUtil.log("addDeleteEntityMethod", 1);
 		TypeName responseType = config.getResponse();
 		MethodSpec.Builder method = MethodSpec
 				.methodBuilder("delete")
@@ -480,7 +480,7 @@ public class GeneratedRestBuilder {
 		if (config.hasExistingRequest(RequestMethod.GET, config.getRequest() + "/{id}/" + relation.getName())) {
 			return builder;
 		}
-		GeneratedRestUtil.log("addGetSingleRelationMethod");
+		GeneratedRestUtil.log("addGetSingleRelationMethod", 1);
 		TypeName responseType = relation.isWithDtos() && relation.getDtoClass() != null && !relation.getDtoClass().equals(TypeName.OBJECT) ? relation.getDtoClass() : relation.getEntityClass();
 		MethodSpec.Builder method = MethodSpec
 				.methodBuilder(relation.getMethodName(AccessorType.GET))
@@ -516,7 +516,7 @@ public class GeneratedRestBuilder {
 				config.hasExistingRequest(RequestMethod.PATCH, config.getRequest() + "/{id}/" + relation.getName())) {
 			return builder;
 		}
-		GeneratedRestUtil.log("addSetSingleRelationMethod");
+		GeneratedRestUtil.log("addSetSingleRelationMethod", 1);
 		TypeName responseType = relation.isWithDtos() && relation.getDtoClass() != null && !relation.getDtoClass().equals(TypeName.OBJECT) ? relation.getDtoClass() : relation.getEntityClass();
 		MethodSpec.Builder method = MethodSpec
 				.methodBuilder(relation.getMethodName(AccessorType.SET))
@@ -560,7 +560,7 @@ public class GeneratedRestBuilder {
 		if (config.hasExistingRequest(RequestMethod.DELETE, config.getRequest() + "/{id}/" + relation.getName())) {
 			return builder;
 		}
-		GeneratedRestUtil.log("addDeleteSingleRelationMethod");
+		GeneratedRestUtil.log("addDeleteSingleRelationMethod", 1);
 		TypeName responseType = relation.isWithDtos() && relation.getDtoClass() != null && !relation.getDtoClass().equals(TypeName.OBJECT) ? relation.getDtoClass() : relation.getEntityClass();
 		MethodSpec.Builder method = MethodSpec
 				.methodBuilder(relation.getMethodName(AccessorType.REMOVE))
@@ -591,7 +591,7 @@ public class GeneratedRestBuilder {
 		if (config.hasExistingRequest(RequestMethod.GET, config.getRequest() + "/{id}/" + relation.getName())) {
 			return builder;
 		}
-		GeneratedRestUtil.log("addGetMultipleRelationsMethod");
+		GeneratedRestUtil.log("addGetMultipleRelationsMethod", 1);
 		TypeName responseType = relation.isWithDtos() && relation.getDtoClass() != null && !relation.getDtoClass().equals(TypeName.OBJECT) ? relation.getDtoClass() : relation.getEntityClass();
 		ParameterizedTypeName responseList = ParameterizedTypeName.get(ClassName.get(List.class), responseType);
 		MethodSpec.Builder method = MethodSpec
@@ -632,7 +632,7 @@ public class GeneratedRestBuilder {
 				config.hasExistingRequest(RequestMethod.PATCH, config.getRequest() + "/{id}/" + relation.getName())) {
 			return builder;
 		}
-		GeneratedRestUtil.log("addAddToRelationsMethod");
+		GeneratedRestUtil.log("addAddToRelationsMethod", 1);
 		TypeName responseType = relation.isWithDtos() && relation.getDtoClass() != null && !relation.getDtoClass().equals(TypeName.OBJECT) ? relation.getDtoClass() : relation.getEntityClass();
 		ParameterizedTypeName responseList = ParameterizedTypeName.get(ClassName.get(List.class), responseType);
 		MethodSpec.Builder method = MethodSpec
@@ -705,7 +705,7 @@ public class GeneratedRestBuilder {
 		if (config.hasExistingRequest(RequestMethod.DELETE, config.getRequest() + "/{id}/" + relation.getName())) {
 			return builder;
 		}
-		GeneratedRestUtil.log("addDeleteFromRelationsMethod");
+		GeneratedRestUtil.log("addDeleteFromRelationsMethod", 1);
 		TypeName responseType = relation.isWithDtos() && relation.getDtoClass() != null && !relation.getDtoClass().equals(TypeName.OBJECT) ? relation.getDtoClass() : relation.getEntityClass();
 		ParameterizedTypeName responseList = ParameterizedTypeName.get(ClassName.get(List.class), responseType);
 		MethodSpec.Builder method = MethodSpec

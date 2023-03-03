@@ -71,7 +71,7 @@ public class GeneratedRestProcessor extends AbstractProcessor {
 
 			GeneratedRestUtil.log("GeneratedConfig");
 			generatedConfig.forEach((name, value) -> {
-				GeneratedRestUtil.log(name + ": " + value);
+				GeneratedRestUtil.log(name + ": " + value, 1);
 			});
 		}
 

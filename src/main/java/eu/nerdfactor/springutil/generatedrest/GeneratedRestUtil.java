@@ -194,8 +194,11 @@ public class GeneratedRestUtil {
 	 * @param str The log string.
 	 */
 	public static void log(String str) {
+		log(str, 0);
+	}
+	public static void log(String str, int indentation) {
 		if (LOG) {
-			System.out.println("[INFO] " + str);
+			System.out.println("[INFO] " + "  ".repeat(indentation) + str);
 		}
 	}
 }
