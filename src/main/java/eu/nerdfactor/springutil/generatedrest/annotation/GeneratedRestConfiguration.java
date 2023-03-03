@@ -54,4 +54,6 @@ public @interface GeneratedRestConfiguration {
 	 * namespace.
 	 */
 	String dtoNamespace() default "";
+
+	boolean log() default false;
 }

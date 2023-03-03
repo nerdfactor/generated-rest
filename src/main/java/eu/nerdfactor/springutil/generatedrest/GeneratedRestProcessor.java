@@ -67,6 +67,7 @@ public class GeneratedRestProcessor extends AbstractProcessor {
 					this.elementUtils,
 					generatedConfig
 			);
+			GeneratedRestUtil.LOG = !generatedConfig.getOrDefault("log", "false").equals("false");
 
 			GeneratedRestUtil.log("GeneratedConfig");
 			generatedConfig.forEach((name, value) -> {
