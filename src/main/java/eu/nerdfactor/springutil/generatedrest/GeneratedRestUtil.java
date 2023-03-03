@@ -9,10 +9,7 @@ import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.util.Elements;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Utility methods for generated rest.
@@ -134,8 +131,54 @@ public class GeneratedRestUtil {
 			final Map<? extends ExecutableElement, ? extends AnnotationValue> elementValues = elementUtils.getElementValuesWithDefaults(retValue.get());
 			elementValues.forEach((executableElement, annotationValue) -> {
 				try {
-					// todo: Value might be a list; Object v = ((AnnotationValue) annotationValue).getValue();
+					// todo: Value might be a list; Object v = ((AnnotationValue) annotationValue).getValue(); -> addAnnotatedListValues
 					values.put(executableElement.getSimpleName().toString(), annotationValue.getValue().toString());
+				} catch (Exception e) {
+				}
+			});
+		}
+		return values;
+	}
+
+	/**
+	 * Get all the values from a list of specific annotations of the element to a List of Maps.
+	 *
+	 * @param element The element to search within.
+	 * @param annotationClassName The class name of the annotation.
+	 * @param elementUtils Utility object for elements.
+	 * @return A list of map of values with name of value as keys.
+	 * @see GeneratedRestUtil#addAnnotatedValues
+	 */
+	public static List<Map<String, String>> getAnnotatedListValues(final Element element, final String annotationClassName, Elements elementUtils) {
+		List<Map<String, String>> values = new ArrayList<>();
+		return addAnnotatedListValues(element, annotationClassName, elementUtils, values);
+	}
+
+	/**
+	 * Add all the values from a list of specific annotations of the element to a List of Maps.
+	 * https://stackoverflow.com/a/52257877
+	 * todo: Combine with addAnnotatedValues?
+	 *
+	 * @param element The element to search within.
+	 * @param annotationClassName The class name of the annotation.
+	 * @param elementUtils Utility object for elements.
+	 * @param values List of Maps that values will be added to.
+	 * @return A list of map of values with name of value as keys.
+	 */
+	public static List<Map<String, String>> addAnnotatedListValues(final Element element, final String annotationClassName, Elements elementUtils, List<Map<String, String>> values) {
+		final Optional<? extends AnnotationMirror> retValue = element.getAnnotationMirrors().stream()
+				.filter(m -> m.getAnnotationType().toString().equals(annotationClassName))
+				.findFirst();
+		if (retValue.isPresent()) {
+			elementUtils.getElementValuesWithDefaults(retValue.get()).forEach((executableElement, annotationValue) -> {
+				try {
+					((Iterable<?>) annotationValue.getValue()).forEach(o -> {
+						Map<String, String> item = new HashMap<>();
+						elementUtils.getElementValuesWithDefaults((AnnotationMirror) o).forEach((executableElement1, annotationValue1) -> {
+							item.put(executableElement1.getSimpleName().toString(), annotationValue1.getValue().toString());
+						});
+						values.add(item);
+					});
 				} catch (Exception e) {
 				}
 			});
@@ -147,6 +190,7 @@ public class GeneratedRestUtil {
 
 	/**
 	 * Simplistic log helper.
+	 *
 	 * @param str The log string.
 	 */
 	public static void log(String str) {

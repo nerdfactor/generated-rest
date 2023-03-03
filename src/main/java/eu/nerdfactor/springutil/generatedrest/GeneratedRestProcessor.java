@@ -77,21 +77,19 @@ public class GeneratedRestProcessor extends AbstractProcessor {
 
 		// Get all DynamicRestController annotations and gather information from the specified
 		// entity in order to create a ControllerConfiguration.
-		for (Element element : roundEnvironment.getElementsAnnotatedWith(GeneratedRestController.class)) {
-			if (element.getKind() != ElementKind.CLASS) {
-				return true;
-			}
+		this.findControllerValues(roundEnvironment).forEach(values -> {
 			ControllerConfiguration config = ControllerConfiguration.builder()
-					.fromElement(element)
+					.fromElement(values.getKey())
 					.withUtils(this.elementUtils)
 					.withEnvironment(roundEnvironment)
+					.withAnnotatedValues(values.getValue())
 					.withPrefix(generatedConfig.getOrDefault("classNamePrefix", "Generated"))
 					.withPattern(generatedConfig.getOrDefault("classNamePattern", "{PREFIX}{NAME}"))
 					.withDataWrapper(ClassName.bestGuess(generatedConfig.getOrDefault("dataWrapper", Object.class.getCanonicalName())))
 					.withDtoClasses(this.findDtoClasses(roundEnvironment, generatedConfig.getOrDefault("dtoNamespace", "")))
 					.build();
 			controllers.put(config.getClassName().simpleName(), config);
-		}
+		});
 
 		// Get all DynamicRestSecurity annotations and add them to the matching controllers.
 		for (Element element : roundEnvironment.getElementsAnnotatedWith(GeneratedRestSecurity.class)) {
@@ -124,6 +122,27 @@ public class GeneratedRestProcessor extends AbstractProcessor {
 		});
 
 		return true;
+	}
+
+	private List<Map.Entry<Element, Map<String, String>>> findControllerValues(RoundEnvironment roundEnvironment) {
+		List<Map.Entry<Element, Map<String, String>>> controllerValues = new ArrayList<>();
+		for (Element element : roundEnvironment.getElementsAnnotatedWith(GeneratedRestController.List.class)) {
+			GeneratedRestUtil.getAnnotatedListValues(
+					element,
+					GeneratedRestController.List.class.getCanonicalName(),
+					this.elementUtils
+			).forEach(annotatedValues -> {
+				controllerValues.add(Map.entry(element, annotatedValues));
+			});
+		}
+		for (Element element : roundEnvironment.getElementsAnnotatedWith(GeneratedRestController.class)) {
+			controllerValues.add(Map.entry(element, GeneratedRestUtil.getAnnotatedValues(
+					element,
+					GeneratedRestController.class.getCanonicalName(),
+					this.elementUtils
+			)));
+		}
+		return controllerValues;
 	}
 
 	/**

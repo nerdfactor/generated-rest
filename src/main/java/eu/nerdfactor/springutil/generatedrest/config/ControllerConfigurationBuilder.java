@@ -4,7 +4,6 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import eu.nerdfactor.springutil.generatedrest.GeneratedRestUtil;
-import eu.nerdfactor.springutil.generatedrest.annotation.GeneratedRestController;
 import eu.nerdfactor.springutil.generatedrest.annotation.IdAccessor;
 import eu.nerdfactor.springutil.generatedrest.data.DataAccessor;
 import eu.nerdfactor.springutil.generatedrest.data.DataMapper;
@@ -40,6 +39,8 @@ public class ControllerConfigurationBuilder {
 	private TypeName dataWrapper;
 
 	private Map<String, List<TypeName>> dtoClasses;
+
+	private Map<String, String> annotatedValues;
 
 	/**
 	 * @param element The annotated Element.
@@ -80,6 +81,11 @@ public class ControllerConfigurationBuilder {
 		return this;
 	}
 
+	public ControllerConfigurationBuilder withAnnotatedValues(@NotNull Map<String, String> values) {
+		this.annotatedValues = values;
+		return this;
+	}
+
 	/**
 	 * Collect information about the controller from the annotated class.
 	 *
@@ -87,22 +93,22 @@ public class ControllerConfigurationBuilder {
 	 */
 	public ControllerConfiguration build() {
 		// Create parts of the annotated class name.
-		String packageName = elementUtils.getPackageOf(element).getQualifiedName().toString();
-		String className = element.getSimpleName().toString();
+		String packageName = this.element != null ? elementUtils.getPackageOf(element).getQualifiedName().toString() : "";
+		String className = this.element != null ? element.getSimpleName().toString() : "";
 
 		// Find all the annotated values in the annotation
-		Map<String, String> annotatedValues = GeneratedRestUtil.getAnnotatedValues(element, GeneratedRestController.class.getName(), this.elementUtils);
+		//Map<String, String> annotatedValues = GeneratedRestUtil.getAnnotatedValues(element, GeneratedRestController.class.getName(), this.elementUtils);
 		// And create class names from the informationen.
-		ClassName entityClass = ClassName.bestGuess(annotatedValues.get("entity"));
-		ClassName dtoClass = ClassName.bestGuess(annotatedValues.get("dto"));
+		ClassName entityClass = ClassName.bestGuess(this.annotatedValues.get("entity"));
+		ClassName dtoClass = ClassName.bestGuess(this.annotatedValues.get("dto"));
 		if (dtoClass.equals(ClassName.OBJECT)) {
 			dtoClass = entityClass;
 		}
 		boolean withDto = !entityClass.equals(dtoClass);
-		ClassName idClass = ClassName.bestGuess(annotatedValues.get("id"));
+		ClassName idClass = ClassName.bestGuess(this.annotatedValues.get("id"));
 
 		// Combine the generated class name and package.
-		String generatedClassName = annotatedValues.getOrDefault("className", "");
+		String generatedClassName = this.annotatedValues.getOrDefault("className", "");
 		if (generatedClassName.length() <= 0) {
 			generatedClassName = this.classNamePattern.replace("{PREFIX}", this.classNamePrefix).replace("{NAME}", className).replace("{NAME_NORMALIZED}", className.replace("Controller", ""));
 		}
@@ -111,7 +117,7 @@ public class ControllerConfigurationBuilder {
 		}
 
 		// Find elements for the specified entity.
-		TypeElement entityElement = element;
+		TypeElement entityElement = this.element;
 		for (Element elem : this.environment.getRootElements()) {
 			if (elem.getSimpleName().toString().equals(entityClass.simpleName())) {
 				entityElement = (TypeElement) elem;
@@ -135,37 +141,39 @@ public class ControllerConfigurationBuilder {
 
 		// Check for existing requests in the annotated class.
 		List<String> existingRequests = new ArrayList<>();
-		for (ExecutableElement method : methodsIn(element.getEnclosedElements())) {
-			for (AnnotationMirror anno : method.getAnnotationMirrors()) {
-				Arrays.asList(RequestMapping.class, GetMapping.class, PostMapping.class, PutMapping.class, PatchMapping.class, DeleteMapping.class).forEach(cls -> {
-					if (cls.getCanonicalName().equals(anno.getAnnotationType().toString())) {
-						Map<String, String> requestMappingAnnotatedValues = GeneratedRestUtil.getAnnotatedValues(method, cls.getCanonicalName(), this.elementUtils);
-						String requestMapping = requestMappingAnnotatedValues.getOrDefault("value", "/").replaceAll("\"$", "").replaceAll("^\"", "");
-						if (requestMapping.length() > 1) {
-							String clsName = cls.getSimpleName();
-							String methodName = clsName.substring(0, clsName.indexOf('M')).toUpperCase();
-							List<String> methodNames = new ArrayList<>(Collections.singletonList(methodName));
-							if (cls == RequestMapping.class) {
-								String[] requestMethods = requestMappingAnnotatedValues.getOrDefault("method", "GET").replaceAll("\"$", "").replaceAll("^\"", "").split(",");
-								Arrays.stream(requestMethods).forEach(s -> methodNames.add(s.substring(s.lastIndexOf(".") + 1)));
-							}
-							methodNames.forEach(m -> {
-								if (!m.equals("REQUEST")) {
-									existingRequests.add(m + requestMapping.toLowerCase());
+		if (this.element != null) {
+			for (ExecutableElement method : methodsIn(this.element.getEnclosedElements())) {
+				for (AnnotationMirror anno : method.getAnnotationMirrors()) {
+					Arrays.asList(RequestMapping.class, GetMapping.class, PostMapping.class, PutMapping.class, PatchMapping.class, DeleteMapping.class).forEach(cls -> {
+						if (cls.getCanonicalName().equals(anno.getAnnotationType().toString())) {
+							Map<String, String> requestMappingAnnotatedValues = GeneratedRestUtil.getAnnotatedValues(method, cls.getCanonicalName(), this.elementUtils);
+							String requestMapping = requestMappingAnnotatedValues.getOrDefault("value", "/").replaceAll("\"$", "").replaceAll("^\"", "");
+							if (requestMapping.length() > 1) {
+								String clsName = cls.getSimpleName();
+								String methodName = clsName.substring(0, clsName.indexOf('M')).toUpperCase();
+								List<String> methodNames = new ArrayList<>(Collections.singletonList(methodName));
+								if (cls == RequestMapping.class) {
+									String[] requestMethods = requestMappingAnnotatedValues.getOrDefault("method", "GET").replaceAll("\"$", "").replaceAll("^\"", "").split(",");
+									Arrays.stream(requestMethods).forEach(s -> methodNames.add(s.substring(s.lastIndexOf(".") + 1)));
 								}
-							});
+								methodNames.forEach(m -> {
+									if (!m.equals("REQUEST")) {
+										existingRequests.add(m + requestMapping.toLowerCase());
+									}
+								});
+							}
 						}
-					}
-				});
+					});
+				}
 			}
 		}
 
 		// Get the path for the request mapping from the annotation.
-		String requestMapping = annotatedValues.getOrDefault("value", "");
+		String requestMapping = this.annotatedValues.getOrDefault("value", "");
 
 		// If the controller should contain relations, collect them from the entity.
 		Map<String, RelationConfiguration> relations = new HashMap<>();
-		if (annotatedValues.get("withRelations").equals("true")) {
+		if (this.annotatedValues.get("withRelations").equals("true")) {
 			// Get all compiled classes in order to determine dto for entity.
 
 
