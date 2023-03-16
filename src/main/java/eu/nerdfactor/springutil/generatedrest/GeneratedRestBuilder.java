@@ -249,7 +249,7 @@ public class GeneratedRestBuilder {
 				.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), responsePage))
 				.addParameter(ParameterSpec.builder(
 								ParameterizedTypeName.get(ClassName.get(Specification.class), config.getEntity()), "spec")
-						.addAnnotation(AnnotationSpec.builder(Filter.class).addMember("parameterName", "$S", "query").build()).
+						.addAnnotation(AnnotationSpec.builder(Filter.class).addMember("parameter", "$S", "query").build()).
 						build()
 				)
 				.addParameter(ParameterSpec.builder(
