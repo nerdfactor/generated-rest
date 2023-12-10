@@ -1,5 +1,6 @@
 package eu.nerdfactor.springutil.generatedrest.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 import eu.nerdfactor.springutil.generatedrest.GeneratedRestUtil;
@@ -113,6 +114,7 @@ public class RelationConfiguration {
 		return this.withDtos;
 	}
 
+	@JsonIgnore
 	public TypeName getResponse() {
 		return this.withDtos && this.dtoClass != null && !this.dtoClass.equals(TypeName.OBJECT) ? this.dtoClass : this.entityClass;
 	}
@@ -136,17 +138,12 @@ public class RelationConfiguration {
 	public String getMethodName(AccessorType type) {
 		String methodName = this.name.substring(0, 1).toUpperCase() + this.name.substring(1);
 		String singularName = GeneratedRestUtil.singularName(methodName);
-		switch (type) {
-			case GET:
-				return "get" + methodName;
-			case SET:
-				return "set" + methodName;
-			case ADD:
-				return "add" + singularName;
-			case REMOVE:
-				return "remove" + singularName;
-		}
-		return methodName;
+		return switch (type) {
+			case GET -> "get" + methodName;
+			case SET -> "set" + methodName;
+			case ADD -> "add" + singularName;
+			case REMOVE -> "remove" + singularName;
+		};
 	}
 
 	public static RelationConfigurationBuilder builder() {
