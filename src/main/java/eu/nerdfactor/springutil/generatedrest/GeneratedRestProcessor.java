@@ -2,14 +2,14 @@ package eu.nerdfactor.springutil.generatedrest;
 
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeName;
-import com.squareup.javapoet.TypeSpec;
 import eu.nerdfactor.springutil.generatedrest.annotation.GeneratedRestConfiguration;
 import eu.nerdfactor.springutil.generatedrest.annotation.GeneratedRestController;
 import eu.nerdfactor.springutil.generatedrest.annotation.GeneratedRestSecurity;
 import eu.nerdfactor.springutil.generatedrest.config.ControllerConfiguration;
 import eu.nerdfactor.springutil.generatedrest.config.SecurityConfiguration;
+import eu.nerdfactor.springutil.generatedrest.export.GeneratedRestExporter;
+import eu.nerdfactor.springutil.generatedrest.export.JavaClassExporter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,7 +18,6 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -109,17 +108,16 @@ public class GeneratedRestProcessor extends AbstractProcessor {
 		}
 
 		// Take the ControllerConfigurations and build new classes from them.
-		final GeneratedRestBuilder builder = new GeneratedRestBuilder();
-		controllers.values().forEach(controllerConfiguration -> {
-			try {
-				GeneratedRestUtil.log("Generating " + controllerConfiguration.getClassName().canonicalName() + " for " + controllerConfiguration.getEntity().toString() + ".");
-				TypeSpec controllerSpec = builder.buildController(controllerConfiguration);
-				JavaFile.builder(controllerConfiguration.getClassName().packageName(), controllerSpec).indent(generatedConfig.getOrDefault("indentation", "\t")).build().writeTo(filer);
-			} catch (IOException e) {
-				GeneratedRestUtil.log("Could not generate " + controllerConfiguration.getClassName().canonicalName() + ".");
-				e.printStackTrace();
-			}
-		});
+		String exporterClassName = generatedConfig.getOrDefault("exporter", JavaClassExporter.class.getCanonicalName());
+		try {
+			// todo: maybe a factory is better?
+			Class cls = Class.forName(exporterClassName);
+			GeneratedRestExporter exporter = (GeneratedRestExporter) cls.getDeclaredConstructor().newInstance();
+			exporter.withFiler(this.filer)
+					.export(generatedConfig, controllers);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		return true;
 	}
@@ -148,7 +146,7 @@ public class GeneratedRestProcessor extends AbstractProcessor {
 	/**
 	 * Find a Map of all possible Dto Classes for auto discovery.
 	 *
-	 * @param environment The current environment.
+	 * @param environment  The current environment.
 	 * @param dtoNamespace A namespace for possible restriction to the search.
 	 * @return A Map of all Classes that might be used.
 	 */
