@@ -1,5 +1,7 @@
 package eu.nerdfactor.springutil.generatedrest.annotation;
 
+import eu.nerdfactor.springutil.generatedrest.export.JavaClassExporter;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -54,6 +56,8 @@ public @interface GeneratedRestConfiguration {
 	 * namespace.
 	 */
 	String dtoNamespace() default "";
+
+	Class<?> exporter() default JavaClassExporter.class;
 
 	boolean log() default false;
 }
