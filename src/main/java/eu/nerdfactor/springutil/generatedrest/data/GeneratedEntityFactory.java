@@ -5,7 +5,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Factory containing beans for generated entity mapper and merger.
+ * Factory containing beans for generated entity mapper and merger
+ * and specification builder.
  *
  * @author Daniel Klug
  */
@@ -22,5 +23,11 @@ public class GeneratedEntityFactory {
 	@ConditionalOnMissingBean(DataMerger.class)
 	public DataMerger getGeneratedEntityMerger() {
 		return new GeneratedEntityMerger();
+	}
+
+	@Bean
+	@ConditionalOnMissingBean(DataSpecificationBuilder.class)
+	public DataSpecificationBuilder getGeneratedSpecificationBuilder() {
+		return new GeneratedSpecificationBuilder();
 	}
 }
