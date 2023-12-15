@@ -1,13 +1,14 @@
 package eu.nerdfactor.springutil.generatedrest;
 
 import com.squareup.javapoet.*;
-import com.turkraft.springfilter.boot.Filter;
 import eu.nerdfactor.springutil.generatedrest.config.AccessorType;
 import eu.nerdfactor.springutil.generatedrest.config.ControllerConfiguration;
 import eu.nerdfactor.springutil.generatedrest.config.RelationConfiguration;
 import eu.nerdfactor.springutil.generatedrest.config.RelationType;
+import eu.nerdfactor.springutil.generatedrest.data.DataSpecificationBuilder;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,7 +22,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.lang.model.element.Modifier;
-import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,6 +54,7 @@ public class GeneratedRestBuilder {
 		if (configuration.getDataMergerClass() != null) {
 			builder = this.addElementsForDataMerger(builder, configuration.getDataMergerClass());
 		}
+		builder = this.addElementsForSpecificationBuilder(builder);
 
 		// Add elements to load and search entities.
 		builder = this.addGetAllEntitiesMethod(builder, configuration);
@@ -66,7 +67,7 @@ public class GeneratedRestBuilder {
 		builder = this.addUpdateEntityMethod(builder, configuration);
 		builder = this.addDeleteEntityMethod(builder, configuration);
 
-		if (configuration.isWithRelations() && configuration.getRelations() != null && configuration.getRelations().size() > 0) {
+		if (configuration.isWithRelations() && configuration.getRelations() != null && !configuration.getRelations().isEmpty()) {
 			for (RelationConfiguration relation : configuration.getRelations().values()) {
 				if (relation.getType() == RelationType.SINGLE) {
 					builder = this.addGetSingleRelationMethod(builder, configuration, relation);
@@ -87,7 +88,7 @@ public class GeneratedRestBuilder {
 	/**
 	 * Creates a fields and methods for a DataMapper and adds it to the TypeSpec.
 	 *
-	 * @param builder The builder for a TypeSpec.
+	 * @param builder         The builder for a TypeSpec.
 	 * @param dataMapperClass The TypeName for the DataMapper.
 	 * @return The builder with added fields and methods.
 	 */
@@ -117,7 +118,7 @@ public class GeneratedRestBuilder {
 	/**
 	 * Creates a fields and methods for a DataAccessor and adds it to the TypeSpec.
 	 *
-	 * @param builder The builder for a TypeSpec.
+	 * @param builder           The builder for a TypeSpec.
 	 * @param dataAccessorClass The TypeName for the DataAccessor.
 	 * @return The builder with added fields and methods.
 	 */
@@ -147,7 +148,7 @@ public class GeneratedRestBuilder {
 	/**
 	 * Creates a fields and methods for a DataMerger and adds it to the TypeSpec.
 	 *
-	 * @param builder The builder for a TypeSpec.
+	 * @param builder         The builder for a TypeSpec.
 	 * @param dataMergerClass The TypeName for the DataMapper.
 	 * @return The builder with added fields and methods.
 	 */
@@ -170,6 +171,30 @@ public class GeneratedRestBuilder {
 				.returns(void.class)
 				.addParameter(dataMergerClass, "dataMerger")
 				.addStatement("this.dataMerger = dataMerger")
+				.build());
+		return builder;
+	}
+
+	public TypeSpec.Builder addElementsForSpecificationBuilder(TypeSpec.Builder builder) {
+		ClassName specificationClass = ClassName.get(DataSpecificationBuilder.class);
+		builder.addField(FieldSpec
+				.builder(specificationClass, "specificationBuilder", Modifier.PROTECTED)
+				.build());
+
+		builder.addMethod(MethodSpec
+				.methodBuilder("getSpecificationBuilder")
+				.addModifiers(Modifier.PUBLIC)
+				.returns(specificationClass)
+				.addStatement("return this.specificationBuilder")
+				.build());
+
+		builder.addMethod(MethodSpec
+				.methodBuilder("setSpecificationBuilder")
+				.addAnnotation(Autowired.class)
+				.addModifiers(Modifier.PUBLIC)
+				.returns(void.class)
+				.addParameter(specificationClass, "specificationBuilder")
+				.addStatement("this.specificationBuilder = specificationBuilder")
 				.build());
 		return builder;
 	}
@@ -247,13 +272,19 @@ public class GeneratedRestBuilder {
 				.addAnnotation(AnnotationSpec.builder(GetMapping.class).addMember("value", "$S", config.getRequest() + "/search").build())
 				.addModifiers(Modifier.PUBLIC)
 				.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), responsePage))
-				.addParameter(ParameterSpec.builder(
+				/*.addParameter(ParameterSpec.builder(
 								ParameterizedTypeName.get(ClassName.get(Specification.class), config.getEntity()), "spec")
 						.addAnnotation(AnnotationSpec.builder(Filter.class).addMember("parameter", "$S", "query").build()).
 						build()
+				)*/
+				.addParameter(ParameterSpec.builder(String.class, "filter")
+						.addAnnotation(AnnotationSpec.builder(RequestParam.class)
+								.addMember("required", "false").
+								build()
+						)
+						.build()
 				)
-				.addParameter(ParameterSpec.builder(
-								Pageable.class, "pageable")
+				.addParameter(ParameterSpec.builder(Pageable.class, "pageable")
 						.addAnnotation(AnnotationSpec.builder(PageableDefault.class).addMember("size", "20").build()).
 						build()
 				);
@@ -263,6 +294,7 @@ public class GeneratedRestBuilder {
 			String security = "hasRole('" + role + "')";
 			method.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());
 		}
+		method.addStatement("$T<$T> spec = this.getSpecificationBuilder().build(filter, $T.class)", Specification.class, config.getEntity(), config.getEntity());
 		method.addStatement("$T<$T> responseList = new $T<>()", List.class, responseType, ArrayList.class);
 		method.addStatement("$T page = this.getDataAccessor().searchData(spec, pageable)", ParameterizedTypeName.get(ClassName.get(Page.class), config.getEntity()));
 		method.beginControlFlow("for($T entity : page.getContent())", config.getEntity());
