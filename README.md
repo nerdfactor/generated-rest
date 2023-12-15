@@ -17,36 +17,44 @@ your project instead of created during runtime. This allows you to
 * Can restrict access to endpoints with spring-security.
 * Allows to map entities to data transfer objects.
 
-### Possible Features
-
-* Can automatically document the api with swagger.
-* Choose between spring or jax-rs annotations for controllers.
-* Modify controller behaviour with hooks.
-
 ## Installation
-
-[Sorry, no central maven artifact by now.]
 
 ```xml
 
 <dependency>
-	<groupId>eu.nerdfactor.springutil</groupId>
-	<artifactId>generated-rest</artifactId>
-	<version>0.0.4</version>
+  <groupId>com.github.nerdfactor</groupId>
+  <artifactId>generated-rest</artifactId>
+  <version>0.0.9</version>
 </dependency>
 ```
+
+The library is published using jitpack.io registry. Add jitpack to the
+projects repositories.
+
+```xml
+
+<repositories>
+  <repository>
+    <id>jitpack.io</id>
+    <url>https://jitpack.io</url>
+  </repository>
+</repositories>
+```
+
+In addition to the library a compiler plugin is required, in order
+to generate the controller classes during compilation of the project.
 
 ```xml
 
 <plugin>
-	<groupId>org.apache.maven.plugins</groupId>
-	<artifactId>maven-compiler-plugin</artifactId>
-	<version>3.10.1</version>
-	<configuration>
-		<source>11</source>
-		<target>11</target>
-		<generatedSourcesDirectory>${project.build.directory}/generated-sources/</generatedSourcesDirectory>
-	</configuration>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-compiler-plugin</artifactId>
+  <version>3.11.0</version>
+  <configuration>
+    <source>17</source>
+    <target>17</target>
+    <generatedSourcesDirectory>${project.build.directory}/generated-sources/</generatedSourcesDirectory>
+  </configuration>
 </plugin>
 ```
 
@@ -73,40 +81,40 @@ and build your project. The generated class will look like this
 @RestController
 public class GeneratedProductController {
 
-	@GetMapping("/api/products")
-	public ResponseEntity<List<Product>> all() {
-		// [..]
-	}
+  @GetMapping("/api/products")
+  public ResponseEntity<List<Product>> all() {
+    // [..]
+  }
 
-	@GetMapping("/api/products/{id}")
-	public ResponseEntity<Product> get(@PathVariable final Integer id) {
-		// [..]
-	}
+  @GetMapping("/api/products/{id}")
+  public ResponseEntity<Product> get(@PathVariable final Integer id) {
+    // [..]
+  }
 
-	@PostMapping("/api/products")
-	public ResponseEntity<Product> create(
-			@RequestBody @Valid Product dto) {
-		// [..]
-	}
+  @PostMapping("/api/products")
+  public ResponseEntity<Product> create(
+          @RequestBody @Valid Product dto) {
+    // [..]
+  }
 
-	@PutMapping("/api/products/{id}")
-	public ResponseEntity<Product> set(@PathVariable final Integer id,
-	                                   @RequestBody @Valid Product dto) {
-		// [..]
-	}
+  @PutMapping("/api/products/{id}")
+  public ResponseEntity<Product> set(@PathVariable final Integer id,
+                                     @RequestBody @Valid Product dto) {
+    // [..]
+  }
 
-	@PatchMapping("/api/products/{id}")
-	public ResponseEntity<Product> update(@PathVariable final Integer id,
-	                                      @RequestBody @Valid Product dto) {
-		// [..]
-	}
+  @PatchMapping("/api/products/{id}")
+  public ResponseEntity<Product> update(@PathVariable final Integer id,
+                                        @RequestBody @Valid Product dto) {
+    // [..]
+  }
 
-	@DeleteMapping("/api/products/{id}")
-	public ResponseEntity<Product> delete(@PathVariable final Integer id) {
-		// [..]
-	}
+  @DeleteMapping("/api/products/{id}")
+  public ResponseEntity<Product> delete(@PathVariable final Integer id) {
+    // [..]
+  }
 
-	// [more methods to access relationships]
+  // [more methods to access relationships]
 }
 ```
 
