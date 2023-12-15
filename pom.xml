@@ -113,9 +113,9 @@
 	</build>
 	<distributionManagement>
 		<repository>
-			<id>dev</id>
-			<name>Local repository</name>
-			<url>file://${user.home}/.m2/repository</url>
+			<id>github</id>
+			<name>GitHub Packages</name>
+			<url>https://maven.pkg.github.com/nerdfactor/generated-rest</url>
 		</repository>
 	</distributionManagement>
 </project>
