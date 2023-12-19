@@ -72,9 +72,8 @@ public class RelationConfigurationBuilder {
 			TypeName typeName = ParameterizedTypeName.get(field.asType());
 			// Check if the type is a collection and use the first type argument
 			// as the relation type.
-			if (typeName instanceof ParameterizedTypeName) {
-				ParameterizedTypeName parameterizedTypeName = (ParameterizedTypeName) typeName;
-				if (parameterizedTypeName.typeArguments.size() > 0 &&
+			if (typeName instanceof ParameterizedTypeName parameterizedTypeName) {
+				if (!parameterizedTypeName.typeArguments.isEmpty() &&
 						(parameterizedTypeName.rawType.equals(TypeName.get(List.class))
 								|| parameterizedTypeName.rawType.equals(TypeName.get(Set.class))
 								|| parameterizedTypeName.rawType.equals(TypeName.get(Collection.class)))
@@ -124,6 +123,7 @@ public class RelationConfigurationBuilder {
 										break;
 									}
 								} catch (Exception e) {
+									// ignore the exception
 								}
 							}
 						}
@@ -211,23 +211,23 @@ public class RelationConfigurationBuilder {
 
 		// If values from the annotation like Relation is passed as parameter, try to
 		// get the accessor names from them.
-		if (annotationValues != null && annotationValues.size() > 0) {
+		if (annotationValues != null && !annotationValues.isEmpty()) {
 			annotationValues.forEach((executableElement, annotationValue) -> {
 				try {
 					String name = executableElement.getSimpleName().toString();
 					String value = annotationValue.getValue().toString();
 					switch (name) {
 						case "get":
-							accessors[0] = value.length() > 0 ? value : accessors[0];
+							accessors[0] = !value.isEmpty() ? value : accessors[0];
 							break;
 						case "set":
-							accessors[1] = value.length() > 0 ? value : accessors[1];
+							accessors[1] = !value.isEmpty() ? value : accessors[1];
 							break;
 						case "add":
-							accessors[2] = value.length() > 0 ? value : accessors[2];
+							accessors[2] = !value.isEmpty() ? value : accessors[2];
 							break;
 						case "remove":
-							accessors[3] = value.length() > 0 ? value : accessors[3];
+							accessors[3] = !value.isEmpty() ? value : accessors[3];
 							break;
 					}
 				} catch (Exception e) {

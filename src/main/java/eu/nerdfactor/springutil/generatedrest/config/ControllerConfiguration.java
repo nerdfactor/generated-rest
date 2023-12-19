@@ -105,7 +105,7 @@ public class ControllerConfiguration {
 		this.dataAccessorClass = dataAccessorClass;
 		this.dataMapperClass = dataMapperClass;
 		this.dataMergerClass = dataMergerClass;
-		if (relations != null && relations.size() > 0) {
+		if (relations != null && !relations.isEmpty()) {
 			this.withRelations = true;
 			this.relations = relations;
 		}

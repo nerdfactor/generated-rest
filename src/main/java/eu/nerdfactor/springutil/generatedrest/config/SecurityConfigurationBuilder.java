@@ -68,7 +68,7 @@ public class SecurityConfigurationBuilder {
 
 		// Combine the generated class name and package.
 		String generatedClassName = annotatedValues.getOrDefault("className", "");
-		if (generatedClassName.length() <= 0) {
+		if (generatedClassName.isEmpty()) {
 			// todo: duplicate code with ControllerConfigurationCollector
 			generatedClassName = this.classNamePattern
 					.replace("{PREFIX}", this.classNamePrefix)

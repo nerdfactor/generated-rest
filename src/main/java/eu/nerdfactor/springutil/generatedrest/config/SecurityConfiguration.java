@@ -43,7 +43,6 @@ public class SecurityConfiguration {
 	}
 
 	public String getSecurityString(ControllerConfiguration config, RelationConfiguration relation, String method, String methodBase){
-		ClassName entityName = relation.getEntityClass();
 		String role = this.getRole(method, relation.getEntityClass().simpleName(),  relation.getEntityClass().simpleName());
 		String security = "hasRole('" + role + "')";
 		if(config.getSecurity().inclusive){

@@ -96,9 +96,7 @@ public class ControllerConfigurationBuilder {
 		String packageName = this.element != null ? elementUtils.getPackageOf(element).getQualifiedName().toString() : "";
 		String className = this.element != null ? element.getSimpleName().toString() : "";
 
-		// Find all the annotated values in the annotation
-		//Map<String, String> annotatedValues = GeneratedRestUtil.getAnnotatedValues(element, GeneratedRestController.class.getName(), this.elementUtils);
-		// And create class names from the informationen.
+		// Create class names from the informationen.
 		ClassName entityClass = ClassName.bestGuess(this.annotatedValues.get("entity"));
 		ClassName dtoClass = ClassName.bestGuess(this.annotatedValues.get("dto"));
 		if (dtoClass.equals(ClassName.OBJECT)) {
