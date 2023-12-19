@@ -24,7 +24,7 @@ your project instead of created during runtime. This allows you to
 <dependency>
   <groupId>com.github.nerdfactor</groupId>
   <artifactId>generated-rest</artifactId>
-  <version>0.0.9</version>
+  <version>0.0.10</version>
 </dependency>
 ```
 
