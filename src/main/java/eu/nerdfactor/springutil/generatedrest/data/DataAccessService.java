@@ -2,20 +2,18 @@ package eu.nerdfactor.springutil.generatedrest.data;
 
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 /**
  * Generic way to access entity data from a service.
  *
- * @param <E> Type of the entity.
+ * @param <E>  Type of the entity.
  * @param <ID> Type of the entity's id.
  * @author Daniel Klug
  */
@@ -37,6 +35,7 @@ public interface DataAccessService<E, ID> extends DataAccessor<E, ID> {
 	 * @param page The {@link Pageable} for paging.
 	 * @return A filtered and paged set of data.
 	 */
+	@SuppressWarnings("unchecked")
 	default Page<E> searchData(Specification<E> spec, Pageable page) {
 		CrudRepository<E, ID> repository = this.getRepository();
 		if (repository instanceof JpaSpecificationExecutor) {
@@ -47,9 +46,9 @@ public interface DataAccessService<E, ID> extends DataAccessor<E, ID> {
 			PagingAndSortingRepository<E, ID> pagingAndSorting = (PagingAndSortingRepository<E, ID>) repository;
 			return pagingAndSorting.findAll(page);
 		}
-		return new PageImpl<>(StreamSupport
+		return new DataPage<>(StreamSupport
 				.stream(this.getRepository().findAll().spliterator(), false)
-				.collect(Collectors.toList()));
+				.toList());
 	}
 
 	default E createData(@NotNull E entity) {

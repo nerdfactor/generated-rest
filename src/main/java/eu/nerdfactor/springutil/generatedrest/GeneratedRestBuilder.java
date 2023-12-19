@@ -5,6 +5,7 @@ import eu.nerdfactor.springutil.generatedrest.config.AccessorType;
 import eu.nerdfactor.springutil.generatedrest.config.ControllerConfiguration;
 import eu.nerdfactor.springutil.generatedrest.config.RelationConfiguration;
 import eu.nerdfactor.springutil.generatedrest.config.RelationType;
+import eu.nerdfactor.springutil.generatedrest.data.DataPage;
 import eu.nerdfactor.springutil.generatedrest.data.DataSpecificationBuilder;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
@@ -305,7 +306,7 @@ public class GeneratedRestBuilder {
 		}
 		method.addStatement("responseList.add(response)");
 		method.endControlFlow();
-		method.addStatement("$T<$T> responsePage = new $T<>(responseList, page.getPageable(), page.getTotalElements())", Page.class, responseType, PageImpl.class);
+		method.addStatement("$T<$T> responsePage = new $T<>(responseList, page.getPageable(), page.getTotalElements())", Page.class, responseType, DataPage.class);
 		this.addReturnStatement(method, config, responseType, "responsePage");
 		builder.addMethod(method.build());
 		return builder;
