@@ -3,10 +3,10 @@ package eu.nerdfactor.springutil.generatedrest.config;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
-import eu.nerdfactor.springutil.generatedrest.GeneratedRestUtil;
 import eu.nerdfactor.springutil.generatedrest.annotation.IdAccessor;
 import eu.nerdfactor.springutil.generatedrest.annotation.Relation;
 import eu.nerdfactor.springutil.generatedrest.annotation.RelationAccessor;
+import eu.nerdfactor.springutil.generatedrest.util.GeneratedRestUtil;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
@@ -40,9 +40,6 @@ public class RelationConfigurationBuilder {
 	private Map<String, List<TypeName>> classes;
 
 	private boolean withDtos = true;
-
-	public RelationConfigurationBuilder() {
-	}
 
 	public RelationConfigurationBuilder withElement(Element element) {
 		this.element = element;
@@ -164,7 +161,7 @@ public class RelationConfigurationBuilder {
 	/**
 	 * Find the relation type from a Relation annotation.
 	 *
-	 * @param relationType The possible relation type.
+	 * @param relationType     The possible relation type.
 	 * @param annotationValues The values of the annotation.
 	 * @return The original relation type or the new relation type of the annotation.
 	 */
@@ -188,7 +185,7 @@ public class RelationConfigurationBuilder {
 	 * Auto discover Dto Type for the type by checking all current classes for the same name with a Dto Suffix.
 	 *
 	 * @param typeName The class for which the Dto should be found.
-	 * @param classes A map of all possible Dto classes.
+	 * @param classes  A map of all possible Dto classes.
 	 * @return The found Dto type or the original class type, if none was found.
 	 */
 	private TypeName findDtoType(ClassName typeName, Map<String, List<TypeName>> classes) {

@@ -1,7 +1,7 @@
 package eu.nerdfactor.springutil.generatedrest.config;
 
-import eu.nerdfactor.springutil.generatedrest.GeneratedRestUtil;
 import eu.nerdfactor.springutil.generatedrest.annotation.GeneratedRestSecurity;
+import eu.nerdfactor.springutil.generatedrest.util.GeneratedRestUtil;
 
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;

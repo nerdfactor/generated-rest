@@ -1,7 +1,7 @@
 package eu.nerdfactor.springutil.generatedrest.config;
 
 import com.squareup.javapoet.ClassName;
-import eu.nerdfactor.springutil.generatedrest.GeneratedRestUtil;
+import eu.nerdfactor.springutil.generatedrest.util.GeneratedRestUtil;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -36,16 +36,16 @@ public class SecurityConfiguration {
 				.toUpperCase();
 	}
 
-	public String getSecurityString(ControllerConfiguration config, String method){
+	public String getSecurityString(ControllerConfiguration config, String method) {
 		ClassName entityName = GeneratedRestUtil.toClassName(config.getEntity());
 		String base = this.getRole(method, entityName.simpleName(), entityName.simpleName());
 		return "hasRole('" + base + "')";
 	}
 
-	public String getSecurityString(ControllerConfiguration config, RelationConfiguration relation, String method, String methodBase){
-		String role = this.getRole(method, relation.getEntityClass().simpleName(),  relation.getEntityClass().simpleName());
+	public String getSecurityString(ControllerConfiguration config, RelationConfiguration relation, String method, String methodBase) {
+		String role = this.getRole(method, relation.getEntityClass().simpleName(), relation.getEntityClass().simpleName());
 		String security = "hasRole('" + role + "')";
-		if(config.getSecurity().inclusive){
+		if (config.getSecurity().inclusive) {
 			ClassName baseEntityName = GeneratedRestUtil.toClassName(config.getEntity());
 			String base = this.getRole(methodBase, baseEntityName.simpleName(), baseEntityName.simpleName());
 			security += " and hasRole('" + base + "')";

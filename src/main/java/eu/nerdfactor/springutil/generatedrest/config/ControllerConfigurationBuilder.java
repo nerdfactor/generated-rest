@@ -3,11 +3,11 @@ package eu.nerdfactor.springutil.generatedrest.config;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
-import eu.nerdfactor.springutil.generatedrest.GeneratedRestUtil;
 import eu.nerdfactor.springutil.generatedrest.annotation.IdAccessor;
 import eu.nerdfactor.springutil.generatedrest.data.DataAccessor;
 import eu.nerdfactor.springutil.generatedrest.data.DataMapper;
 import eu.nerdfactor.springutil.generatedrest.data.DataMerger;
+import eu.nerdfactor.springutil.generatedrest.util.GeneratedRestUtil;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.web.bind.annotation.*;
 
