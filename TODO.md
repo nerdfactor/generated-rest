@@ -1,7 +1,7 @@
 ## Todo
 
 - [ ] more exception handling in builder
-- [ ] separate builder methods.
+- [x] separate builder methods.
 - [x] ~~choice between spring-mvc and jax-rs annotations.~~
 - [ ] swagger for generated controllers.
 - [ ] add hooks within controllers
