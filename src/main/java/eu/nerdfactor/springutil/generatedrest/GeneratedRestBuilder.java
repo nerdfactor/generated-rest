@@ -13,7 +13,6 @@ import jakarta.validation.Valid;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.web.PageableDefault;
@@ -57,6 +56,11 @@ public class GeneratedRestBuilder {
 		}
 		builder = this.addElementsForSpecificationBuilder(builder);
 
+		builder = this.addConstructor(builder,
+				configuration.getDataAccessorClass(),
+				configuration.getDataMapperClass(),
+				configuration.getDataMergerClass());
+
 		// Add elements to load and search entities.
 		builder = this.addGetAllEntitiesMethod(builder, configuration);
 		builder = this.addSearchEntitiesMethod(builder, configuration);
@@ -97,22 +101,6 @@ public class GeneratedRestBuilder {
 		builder.addField(FieldSpec
 				.builder(dataMapperClass, "dataMapper", Modifier.PROTECTED)
 				.build());
-
-		builder.addMethod(MethodSpec
-				.methodBuilder("getDataMapper")
-				.addModifiers(Modifier.PUBLIC)
-				.returns(dataMapperClass)
-				.addStatement("return this.dataMapper")
-				.build());
-
-		builder.addMethod(MethodSpec
-				.methodBuilder("setDataMapper")
-				.addAnnotation(Autowired.class)
-				.addModifiers(Modifier.PUBLIC)
-				.returns(void.class)
-				.addParameter(dataMapperClass, "dataMapper")
-				.addStatement("this.dataMapper = dataMapper")
-				.build());
 		return builder;
 	}
 
@@ -126,22 +114,6 @@ public class GeneratedRestBuilder {
 	public TypeSpec.Builder addElementsForDataAccessor(TypeSpec.Builder builder, ParameterizedTypeName dataAccessorClass) {
 		builder.addField(FieldSpec
 				.builder(dataAccessorClass, "dataAccessor", Modifier.PROTECTED)
-				.build());
-
-		builder.addMethod(MethodSpec
-				.methodBuilder("getDataAccessor")
-				.addModifiers(Modifier.PUBLIC)
-				.returns(dataAccessorClass)
-				.addStatement("return this.dataAccessor")
-				.build());
-
-		builder.addMethod(MethodSpec
-				.methodBuilder("setDataAccessor")
-				.addAnnotation(Autowired.class)
-				.addModifiers(Modifier.PUBLIC)
-				.returns(void.class)
-				.addParameter(dataAccessorClass, "dataAccessor")
-				.addStatement("this.dataAccessor = dataAccessor")
 				.build());
 		return builder;
 	}
@@ -157,22 +129,6 @@ public class GeneratedRestBuilder {
 		builder.addField(FieldSpec
 				.builder(dataMergerClass, "dataMerger", Modifier.PROTECTED)
 				.build());
-
-		builder.addMethod(MethodSpec
-				.methodBuilder("getDataMerger")
-				.addModifiers(Modifier.PUBLIC)
-				.returns(dataMergerClass)
-				.addStatement("return this.dataMerger")
-				.build());
-
-		builder.addMethod(MethodSpec
-				.methodBuilder("setDataMerger")
-				.addAnnotation(Autowired.class)
-				.addModifiers(Modifier.PUBLIC)
-				.returns(void.class)
-				.addParameter(dataMergerClass, "dataMerger")
-				.addStatement("this.dataMerger = dataMerger")
-				.build());
 		return builder;
 	}
 
@@ -180,22 +136,6 @@ public class GeneratedRestBuilder {
 		ClassName specificationClass = ClassName.get(DataSpecificationBuilder.class);
 		builder.addField(FieldSpec
 				.builder(specificationClass, "specificationBuilder", Modifier.PROTECTED)
-				.build());
-
-		builder.addMethod(MethodSpec
-				.methodBuilder("getSpecificationBuilder")
-				.addModifiers(Modifier.PUBLIC)
-				.returns(specificationClass)
-				.addStatement("return this.specificationBuilder")
-				.build());
-
-		builder.addMethod(MethodSpec
-				.methodBuilder("setSpecificationBuilder")
-				.addAnnotation(Autowired.class)
-				.addModifiers(Modifier.PUBLIC)
-				.returns(void.class)
-				.addParameter(specificationClass, "specificationBuilder")
-				.addStatement("this.specificationBuilder = specificationBuilder")
 				.build());
 		return builder;
 	}
@@ -210,20 +150,24 @@ public class GeneratedRestBuilder {
 		builder.addField(FieldSpec
 				.builder(EntityManager.class, "entityManager", Modifier.PROTECTED)
 				.build());
+		return builder;
+	}
+
+	public TypeSpec.Builder addConstructor(TypeSpec.Builder builder, ParameterizedTypeName dataAccessorClass, TypeName dataMapperClass, TypeName dataMergerClass) {
 
 		builder.addMethod(MethodSpec
-				.methodBuilder("getEntityManager")
-				.addModifiers(Modifier.PUBLIC)
-				.returns(EntityManager.class)
-				.addStatement("return this.entityManager")
-				.build());
-
-		builder.addMethod(MethodSpec
-				.methodBuilder("setEntityManager")
+				.constructorBuilder()
 				.addAnnotation(Autowired.class)
 				.addModifiers(Modifier.PUBLIC)
-				.returns(void.class)
+				.addParameter(dataAccessorClass, "dataAccessor")
+				.addParameter(dataMapperClass, "dataMapper")
+				.addParameter(dataMergerClass, "dataMerger")
+				.addParameter(DataSpecificationBuilder.class, "specificationBuilder")
 				.addParameter(EntityManager.class, "entityManager")
+				.addStatement("this.dataAccessor = dataAccessor")
+				.addStatement("this.dataMapper = dataMapper")
+				.addStatement("this.dataMerger = dataMerger")
+				.addStatement("this.specificationBuilder = specificationBuilder")
 				.addStatement("this.entityManager = entityManager")
 				.build());
 		return builder;
@@ -248,9 +192,9 @@ public class GeneratedRestBuilder {
 			method.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());
 		}
 		method.addStatement("$T<$T> responseList = new $T<>()", List.class, responseType, ArrayList.class);
-		method.beginControlFlow("for($T entity : this.getDataAccessor().listData())", config.getEntity());
+		method.beginControlFlow("for($T entity : this.dataAccessor.listData())", config.getEntity());
 		if (config.isWithDtos()) {
-			method.addStatement("$T response = this.getDataMapper().map(entity, $T.class)", responseType, responseType);
+			method.addStatement("$T response = this.dataMapper.map(entity, $T.class)", responseType, responseType);
 		} else {
 			method.addStatement("$T response = entity", responseType);
 		}
@@ -273,11 +217,6 @@ public class GeneratedRestBuilder {
 				.addAnnotation(AnnotationSpec.builder(GetMapping.class).addMember("value", "$S", config.getRequest() + "/search").build())
 				.addModifiers(Modifier.PUBLIC)
 				.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), responsePage))
-				/*.addParameter(ParameterSpec.builder(
-								ParameterizedTypeName.get(ClassName.get(Specification.class), config.getEntity()), "spec")
-						.addAnnotation(AnnotationSpec.builder(Filter.class).addMember("parameter", "$S", "query").build()).
-						build()
-				)*/
 				.addParameter(ParameterSpec.builder(String.class, "filter")
 						.addAnnotation(AnnotationSpec.builder(RequestParam.class)
 								.addMember("required", "false").
@@ -295,12 +234,12 @@ public class GeneratedRestBuilder {
 			String security = "hasRole('" + role + "')";
 			method.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());
 		}
-		method.addStatement("$T<$T> spec = this.getSpecificationBuilder().build(filter, $T.class)", Specification.class, config.getEntity(), config.getEntity());
+		method.addStatement("$T<$T> spec = this.specificationBuilder.build(filter, $T.class)", Specification.class, config.getEntity(), config.getEntity());
 		method.addStatement("$T<$T> responseList = new $T<>()", List.class, responseType, ArrayList.class);
-		method.addStatement("$T page = this.getDataAccessor().searchData(spec, pageable)", ParameterizedTypeName.get(ClassName.get(Page.class), config.getEntity()));
+		method.addStatement("$T page = this.dataAccessor.searchData(spec, pageable)", ParameterizedTypeName.get(ClassName.get(Page.class), config.getEntity()));
 		method.beginControlFlow("for($T entity : page.getContent())", config.getEntity());
 		if (config.isWithDtos()) {
-			method.addStatement("$T response = this.getDataMapper().map(entity, $T.class)", responseType, responseType);
+			method.addStatement("$T response = this.dataMapper.map(entity, $T.class)", responseType, responseType);
 		} else {
 			method.addStatement("$T response = entity", responseType);
 		}
@@ -334,12 +273,12 @@ public class GeneratedRestBuilder {
 			String security = "hasRole('" + role + "')";
 			method.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());
 		}
-		method.addStatement("$T entity = this.getDataAccessor().readData(id)", config.getEntity());
+		method.addStatement("$T entity = this.dataAccessor.readData(id)", config.getEntity());
 		method.beginControlFlow("if(entity == null)");
 		method.addStatement("throw new $T()", EntityNotFoundException.class);
 		method.endControlFlow();
 		if (config.isWithDtos()) {
-			method.addStatement("$T response = this.getDataMapper().map(entity, $T.class)", responseType, responseType);
+			method.addStatement("$T response = this.dataMapper.map(entity, $T.class)", responseType, responseType);
 		} else {
 			method.addStatement("$T response = entity", responseType);
 		}
@@ -371,13 +310,13 @@ public class GeneratedRestBuilder {
 			method.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());
 		}
 		if (config.isWithDtos()) {
-			method.addStatement("$T created = this.getDataMapper().map(dto, $T.class)", config.getEntity(), config.getEntity());
+			method.addStatement("$T created = this.dataMapper.map(dto, $T.class)", config.getEntity(), config.getEntity());
 		} else {
 			method.addStatement("$T created = dto", responseType);
 		}
-		method.addStatement("created = this.getDataAccessor().createData(created)");
+		method.addStatement("created = this.dataAccessor.createData(created)");
 		if (config.isWithDtos()) {
-			method.addStatement("$T response = this.getDataMapper().map(created, $T.class)", responseType, responseType);
+			method.addStatement("$T response = this.dataMapper.map(created, $T.class)", responseType, responseType);
 		} else {
 			method.addStatement("$T response = created", responseType);
 		}
@@ -413,18 +352,18 @@ public class GeneratedRestBuilder {
 			String security = "hasRole('" + role + "')";
 			method.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());
 		}
-		method.addStatement("$T entity = this.getDataAccessor().readData(id)", config.getEntity());
+		method.addStatement("$T entity = this.dataAccessor.readData(id)", config.getEntity());
 		method.beginControlFlow("if(entity == null)");
 		method.addStatement("throw new $T()", EntityNotFoundException.class);
 		method.endControlFlow();
 		if (config.isWithDtos()) {
-			method.addStatement("$T changed = this.getDataMapper().map(dto, $T.class)", config.getEntity(), config.getEntity());
+			method.addStatement("$T changed = this.dataMapper.map(dto, $T.class)", config.getEntity(), config.getEntity());
 		} else {
 			method.addStatement("$T changed = dto", config.getEntity());
 		}
-		method.addStatement("changed = this.getDataAccessor().updateData(changed)");
+		method.addStatement("changed = this.dataAccessor.updateData(changed)");
 		if (config.isWithDtos()) {
-			method.addStatement("$T response = this.getDataMapper().map(changed, $T.class)", responseType, responseType);
+			method.addStatement("$T response = this.dataMapper.map(changed, $T.class)", responseType, responseType);
 		} else {
 			method.addStatement("$T response = changed", responseType);
 		}
@@ -460,19 +399,19 @@ public class GeneratedRestBuilder {
 			String security = "hasRole('" + role + "')";
 			method.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());
 		}
-		method.addStatement("$T entity = this.getDataAccessor().readData(id)", config.getEntity());
+		method.addStatement("$T entity = this.dataAccessor.readData(id)", config.getEntity());
 		method.beginControlFlow("if(entity == null)");
 		method.addStatement("throw new $T()", EntityNotFoundException.class);
 		method.endControlFlow();
 		if (config.isWithDtos()) {
-			method.addStatement("$T changed = this.getDataMapper().map(dto, $T.class)", config.getEntity(), config.getEntity());
+			method.addStatement("$T changed = this.dataMapper.map(dto, $T.class)", config.getEntity(), config.getEntity());
 		} else {
 			method.addStatement("$T changed = dto", config.getEntity());
 		}
-		method.addStatement("$T updated = this.getDataMerger().merge(entity, changed)", config.getEntity());
-		method.addStatement("updated = this.getDataAccessor().updateData(updated)");
+		method.addStatement("$T updated = this.dataMerger.merge(entity, changed)", config.getEntity());
+		method.addStatement("updated = this.dataAccessor.updateData(updated)");
 		if (config.isWithDtos()) {
-			method.addStatement("$T response = this.getDataMapper().map(updated, $T.class)", responseType, responseType);
+			method.addStatement("$T response = this.dataMapper.map(updated, $T.class)", responseType, responseType);
 		} else {
 			method.addStatement("$T response = updated", responseType);
 		}
@@ -503,7 +442,7 @@ public class GeneratedRestBuilder {
 			String security = "hasRole('" + role + "')";
 			method.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());
 		}
-		method.addStatement("this.getDataAccessor().deleteDataById(id)");
+		method.addStatement("this.dataAccessor.deleteDataById(id)");
 		this.addNoContentStatement(method, config, responseType);
 		builder.addMethod(method.build());
 		return builder;
@@ -529,12 +468,12 @@ public class GeneratedRestBuilder {
 			String security = config.getSecurity().getSecurityString(config, relation, "READ", "READ");
 			method.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());
 		}
-		method.addStatement("$T entity = this.getDataAccessor().readData(id)", config.getEntity());
+		method.addStatement("$T entity = this.dataAccessor.readData(id)", config.getEntity());
 		method.beginControlFlow("if(entity == null)");
 		method.addStatement("throw new $T()", EntityNotFoundException.class);
 		method.endControlFlow();
 		if (relation.isWithDtos()) {
-			method.addStatement("$T response = this.getDataMapper().map(entity." + relation.getGetter() + "(), $T.class)", responseType, responseType);
+			method.addStatement("$T response = this.dataMapper.map(entity." + relation.getGetter() + "(), $T.class)", responseType, responseType);
 		} else {
 			method.addStatement("$T response = entity." + relation.getGetter() + "()", responseType);
 		}
@@ -571,12 +510,12 @@ public class GeneratedRestBuilder {
 			String security = config.getSecurity().getSecurityString(config, relation, "UPDATE", "UPDATE");
 			method.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());
 		}
-		method.addStatement("$T entity = this.getDataAccessor().readData(id)", config.getEntity());
+		method.addStatement("$T entity = this.dataAccessor.readData(id)", config.getEntity());
 		method.beginControlFlow("if(entity == null)");
 		method.addStatement("throw new $T()", EntityNotFoundException.class);
 		method.endControlFlow();
 		if (relation.isWithDtos()) {
-			method.addStatement("$T rel = this.getDataMapper().map(dto, $T.class)", relation.getEntityClass(), relation.getEntityClass());
+			method.addStatement("$T rel = this.dataMapper.map(dto, $T.class)", relation.getEntityClass(), relation.getEntityClass());
 		} else {
 			method.addStatement("$T rel = dto", relation.getEntityClass());
 		}
@@ -610,7 +549,7 @@ public class GeneratedRestBuilder {
 			String security = config.getSecurity().getSecurityString(config, relation, "UPDATE", "UPDATE");
 			method.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());
 		}
-		method.addStatement("$T entity = this.getDataAccessor().readData(id)", config.getEntity());
+		method.addStatement("$T entity = this.dataAccessor.readData(id)", config.getEntity());
 		method.beginControlFlow("if(entity == null)");
 		method.addStatement("throw new $T()", EntityNotFoundException.class);
 		method.endControlFlow();
@@ -641,14 +580,14 @@ public class GeneratedRestBuilder {
 			String security = config.getSecurity().getSecurityString(config, relation, "READ", "READ");
 			method.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());
 		}
-		method.addStatement("$T entity = this.getDataAccessor().readData(id)", config.getEntity());
+		method.addStatement("$T entity = this.dataAccessor.readData(id)", config.getEntity());
 		method.beginControlFlow("if(entity == null)");
 		method.addStatement("throw new $T()", EntityNotFoundException.class);
 		method.endControlFlow();
 		method.addStatement("$T<$T> responseList = new $T<>()", List.class, responseType, ArrayList.class);
 		method.beginControlFlow("for($T rel : entity." + relation.getGetter() + "())", relation.getEntityClass());
 		if (relation.isWithDtos()) {
-			method.addStatement("$T response = this.getDataMapper().map(rel, $T.class)", responseType, responseType);
+			method.addStatement("$T response = this.dataMapper.map(rel, $T.class)", responseType, responseType);
 		} else {
 			method.addStatement("$T response = rel", responseType);
 		}
@@ -720,11 +659,11 @@ public class GeneratedRestBuilder {
 			String security = config.getSecurity().getSecurityString(config, relation, "UPDATE", "UPDATE");
 			methodById.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());
 		}
-		methodById.addStatement("$T entity = this.getDataAccessor().readData(id)", config.getEntity());
+		methodById.addStatement("$T entity = this.dataAccessor.readData(id)", config.getEntity());
 		methodById.beginControlFlow("if(entity == null)");
 		methodById.addStatement("throw new $T()", EntityNotFoundException.class);
 		methodById.endControlFlow();
-		methodById.addStatement("$T rel = this.getEntityManager().getReference($T.class, relationId)", relation.getEntityClass(), relation.getEntityClass());
+		methodById.addStatement("$T rel = this.entityManager.getReference($T.class, relationId)", relation.getEntityClass(), relation.getEntityClass());
 		methodById.addStatement("entity." + relation.getAdder() + "(rel)");
 		if (config.getDataWrapper() != null && !config.getDataWrapper().equals(TypeName.OBJECT)) {
 			methodById.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), ParameterizedTypeName.get(ClassName.bestGuess(config.getDataWrapper().toString()), responseType)));
@@ -788,11 +727,11 @@ public class GeneratedRestBuilder {
 			String security = config.getSecurity().getSecurityString(config, relation, "UPDATE", "UPDATE");
 			methodById.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());
 		}
-		methodById.addStatement("$T entity = this.getDataAccessor().readData(id)", config.getEntity());
+		methodById.addStatement("$T entity = this.dataAccessor.readData(id)", config.getEntity());
 		methodById.beginControlFlow("if(entity == null)");
 		methodById.addStatement("throw new $T()", EntityNotFoundException.class);
 		methodById.endControlFlow();
-		methodById.addStatement("$T rel = this.getEntityManager().getReference($T.class, relationId)", relation.getEntityClass(), relation.getEntityClass());
+		methodById.addStatement("$T rel = this.entityManager.getReference($T.class, relationId)", relation.getEntityClass(), relation.getEntityClass());
 		methodById.addStatement("entity." + relation.getRemover() + "(rel)");
 		this.addNoContentStatement(methodById, config, responseType);
 		builder.addMethod(methodById.build());
