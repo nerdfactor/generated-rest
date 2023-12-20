@@ -1,7 +1,6 @@
 package eu.nerdfactor.springutil.generatedrest.code;
 
 import com.squareup.javapoet.TypeSpec;
-import eu.nerdfactor.springutil.generatedrest.code.builder.BuildStep;
 import eu.nerdfactor.springutil.generatedrest.code.builder.ConfiguredBuilder;
 import eu.nerdfactor.springutil.generatedrest.code.builder.MultiStepBuilder;
 import eu.nerdfactor.springutil.generatedrest.config.ControllerConfiguration;
@@ -9,22 +8,14 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.lang.model.element.Modifier;
-import java.util.LinkedList;
-import java.util.Queue;
 
-public class GeneratedControllerBuilder implements MultiStepBuilder, ConfiguredBuilder {
+public class GeneratedControllerBuilder extends MultiStepBuilder<TypeSpec.Builder> implements ConfiguredBuilder {
 
 	ControllerConfiguration configuration;
 
-	Queue<BuildStep> steps = new LinkedList<>();
-
+	@Override
 	public GeneratedControllerBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
 		this.configuration = configuration;
-		return this;
-	}
-
-	public GeneratedControllerBuilder and(BuildStep buildStep) {
-		this.steps.add(buildStep);
 		return this;
 	}
 

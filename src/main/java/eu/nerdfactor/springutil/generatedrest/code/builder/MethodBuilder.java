@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-public class MethodBuilder implements BuildStep, ConfiguredBuilder {
+public class MethodBuilder implements Buildable<TypeSpec.Builder>, ConfiguredBuilder {
 
 	protected ControllerConfiguration configuration;
 

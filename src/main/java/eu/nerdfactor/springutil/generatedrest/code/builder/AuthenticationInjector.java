@@ -43,6 +43,7 @@ public class AuthenticationInjector implements Injectable<MethodSpec.Builder> {
 		if (this.securityConfig == null) {
 			return builder;
 		}
+		// todo: separate relationship into separate injector or find a way to combine the underlying role generation.
 		String security = "";
 		if (this.relation != null) {
 			security = this.securityConfig.getSecurityString(this.type, this.relation, this.method, this.method);
