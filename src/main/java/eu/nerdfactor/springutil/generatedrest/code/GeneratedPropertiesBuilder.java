@@ -3,33 +3,22 @@ package eu.nerdfactor.springutil.generatedrest.code;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
-import eu.nerdfactor.springutil.generatedrest.code.builder.BuildStep;
-import eu.nerdfactor.springutil.generatedrest.code.builder.ConstructorBuilder;
-import eu.nerdfactor.springutil.generatedrest.code.builder.MultiStepBuilder;
-import eu.nerdfactor.springutil.generatedrest.code.builder.PropertyBuilder;
+import eu.nerdfactor.springutil.generatedrest.code.builder.*;
 import eu.nerdfactor.springutil.generatedrest.config.ControllerConfiguration;
 import eu.nerdfactor.springutil.generatedrest.data.DataSpecificationBuilder;
 import jakarta.persistence.EntityManager;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.util.Pair;
 
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
-public class GeneratedPropertiesBuilder implements BuildStep, MultiStepBuilder {
+public class GeneratedPropertiesBuilder extends MultiStepBuilder<TypeSpec.Builder> implements Buildable<TypeSpec.Builder>, ConfiguredBuilder {
 
 	ControllerConfiguration configuration;
 
-	Queue<BuildStep> steps = new LinkedList<>();
-
+	@Override
 	public GeneratedPropertiesBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
 		this.configuration = configuration;
-		return this;
-	}
-
-	public GeneratedPropertiesBuilder and(BuildStep buildStep) {
-		this.steps.add(buildStep);
 		return this;
 	}
 

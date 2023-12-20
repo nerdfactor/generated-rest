@@ -6,7 +6,7 @@ import org.springframework.data.util.Pair;
 
 import javax.lang.model.element.Modifier;
 
-public class PropertyBuilder implements BuildStep {
+public class PropertyBuilder implements Buildable<TypeSpec.Builder> {
 
 	protected String name;
 	protected TypeName type;

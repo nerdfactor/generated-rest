@@ -10,7 +10,7 @@ import javax.lang.model.element.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ConstructorBuilder implements BuildStep {
+public class ConstructorBuilder implements Buildable<TypeSpec.Builder> {
 
 	List<Pair<String, TypeName>> properties = new ArrayList<>();
 

@@ -1,6 +1,15 @@
 package eu.nerdfactor.springutil.generatedrest.code.builder;
 
-public interface MultiStepBuilder {
+import java.util.LinkedList;
+import java.util.Queue;
 
-	MultiStepBuilder and(BuildStep buildStep);
+public class MultiStepBuilder<T> {
+
+	protected Queue<Buildable<T>> steps = new LinkedList<>();
+
+	public MultiStepBuilder<T> and(Buildable<T> buildStep) {
+		this.steps.add(buildStep);
+		return this;
+	}
+
 }
