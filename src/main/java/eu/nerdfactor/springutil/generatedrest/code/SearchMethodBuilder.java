@@ -1,6 +1,7 @@
 package eu.nerdfactor.springutil.generatedrest.code;
 
 import com.squareup.javapoet.*;
+import eu.nerdfactor.springutil.generatedrest.code.builder.AuthenticationInjector;
 import eu.nerdfactor.springutil.generatedrest.code.builder.MethodBuilder;
 import eu.nerdfactor.springutil.generatedrest.config.ControllerConfiguration;
 import eu.nerdfactor.springutil.generatedrest.data.DataPage;
@@ -11,7 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -41,12 +41,11 @@ public class SearchMethodBuilder extends MethodBuilder {
 				.addAnnotation(AnnotationSpec.builder(GetMapping.class).addMember("value", "$S", config.getRequest()).build())
 				.addModifiers(Modifier.PUBLIC)
 				.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), responseList));
-		if (config.getSecurity() != null) {
-			ClassName entityName = GeneratedRestUtil.toClassName(config.getEntity());
-			String role = config.getSecurity().getRole("READ", entityName.simpleName(), entityName.simpleName());
-			String security = "hasRole('" + role + "')";
-			method.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());
-		}
+		method = new AuthenticationInjector()
+				.withMethod("READ")
+				.withType(config.getEntity())
+				.withSecurityConfig(config.getSecurity())
+				.inject(method);
 		method.addStatement("$T<$T> responseList = new $T<>()", List.class, responseType, ArrayList.class);
 		method.beginControlFlow("for($T entity : this.dataAccessor.listData())", config.getEntity());
 		if (config.isWithDtos()) {
@@ -84,12 +83,11 @@ public class SearchMethodBuilder extends MethodBuilder {
 						.addAnnotation(AnnotationSpec.builder(PageableDefault.class).addMember("size", "20").build()).
 						build()
 				);
-		if (config.getSecurity() != null) {
-			ClassName entityName = GeneratedRestUtil.toClassName(config.getEntity());
-			String role = config.getSecurity().getRole("READ", entityName.simpleName(), entityName.simpleName());
-			String security = "hasRole('" + role + "')";
-			method.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());
-		}
+		method = new AuthenticationInjector()
+				.withMethod("READ")
+				.withType(config.getEntity())
+				.withSecurityConfig(config.getSecurity())
+				.inject(method);
 		method.addStatement("$T<$T> spec = this.specificationBuilder.build(filter, $T.class)", Specification.class, config.getEntity(), config.getEntity());
 		method.addStatement("$T<$T> responseList = new $T<>()", List.class, responseType, ArrayList.class);
 		method.addStatement("$T page = this.dataAccessor.searchData(spec, pageable)", ParameterizedTypeName.get(ClassName.get(Page.class), config.getEntity()));

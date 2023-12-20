@@ -1,6 +1,7 @@
 package eu.nerdfactor.springutil.generatedrest.code;
 
 import com.squareup.javapoet.*;
+import eu.nerdfactor.springutil.generatedrest.code.builder.AuthenticationInjector;
 import eu.nerdfactor.springutil.generatedrest.code.builder.MethodBuilder;
 import eu.nerdfactor.springutil.generatedrest.config.AccessorType;
 import eu.nerdfactor.springutil.generatedrest.config.ControllerConfiguration;
@@ -10,7 +11,6 @@ import eu.nerdfactor.springutil.generatedrest.util.GeneratedRestUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.lang.model.element.Modifier;
@@ -55,10 +55,12 @@ public class RelationshipMethodBuilder extends MethodBuilder {
 						.addAnnotation(PathVariable.class)
 						.build()
 				);
-		if (config.getSecurity() != null) {
-			String security = config.getSecurity().getSecurityString(config, relation, "READ", "READ");
-			method.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());
-		}
+		method = new AuthenticationInjector()
+				.withMethod("READ")
+				.withType(config.getEntity())
+				.withRelation(relation.getEntityClass())
+				.withSecurityConfig(config.getSecurity())
+				.inject(method);
 		method.addStatement("$T entity = this.dataAccessor.readData(id)", config.getEntity());
 		method.beginControlFlow("if(entity == null)");
 		method.addStatement("throw new $T()", EntityNotFoundException.class);
@@ -97,10 +99,12 @@ public class RelationshipMethodBuilder extends MethodBuilder {
 						.addAnnotation(Valid.class)
 						.build()
 				);
-		if (config.getSecurity() != null) {
-			String security = config.getSecurity().getSecurityString(config, relation, "UPDATE", "UPDATE");
-			method.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());
-		}
+		method = new AuthenticationInjector()
+				.withMethod("UPDATE")
+				.withType(config.getEntity())
+				.withRelation(relation.getEntityClass())
+				.withSecurityConfig(config.getSecurity())
+				.inject(method);
 		method.addStatement("$T entity = this.dataAccessor.readData(id)", config.getEntity());
 		method.beginControlFlow("if(entity == null)");
 		method.addStatement("throw new $T()", EntityNotFoundException.class);
@@ -136,10 +140,12 @@ public class RelationshipMethodBuilder extends MethodBuilder {
 						.addAnnotation(PathVariable.class)
 						.build()
 				);
-		if (config.getSecurity() != null) {
-			String security = config.getSecurity().getSecurityString(config, relation, "UPDATE", "UPDATE");
-			method.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());
-		}
+		method = new AuthenticationInjector()
+				.withMethod("UPDATE")
+				.withType(config.getEntity())
+				.withRelation(relation.getEntityClass())
+				.withSecurityConfig(config.getSecurity())
+				.inject(method);
 		method.addStatement("$T entity = this.dataAccessor.readData(id)", config.getEntity());
 		method.beginControlFlow("if(entity == null)");
 		method.addStatement("throw new $T()", EntityNotFoundException.class);
@@ -167,10 +173,12 @@ public class RelationshipMethodBuilder extends MethodBuilder {
 						.addAnnotation(PathVariable.class)
 						.build()
 				);
-		if (config.getSecurity() != null) {
-			String security = config.getSecurity().getSecurityString(config, relation, "READ", "READ");
-			method.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());
-		}
+		method = new AuthenticationInjector()
+				.withMethod("READ")
+				.withType(config.getEntity())
+				.withRelation(relation.getEntityClass())
+				.withSecurityConfig(config.getSecurity())
+				.inject(method);
 		method.addStatement("$T entity = this.dataAccessor.readData(id)", config.getEntity());
 		method.beginControlFlow("if(entity == null)");
 		method.addStatement("throw new $T()", EntityNotFoundException.class);
@@ -214,10 +222,12 @@ public class RelationshipMethodBuilder extends MethodBuilder {
 						.addAnnotation(Valid.class)
 						.build()
 				);
-		if (config.getSecurity() != null) {
-			String security = config.getSecurity().getSecurityString(config, relation, "UPDATE", "UPDATE");
-			method.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());
-		}
+		method = new AuthenticationInjector()
+				.withMethod("UPDATE")
+				.withType(config.getEntity())
+				.withRelation(relation.getEntityClass())
+				.withSecurityConfig(config.getSecurity())
+				.inject(method);
 		if (config.getDataWrapper() != null && !config.getDataWrapper().equals(TypeName.OBJECT)) {
 			method.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), ParameterizedTypeName.get(ClassName.bestGuess(config.getDataWrapper().toString()), responseType)));
 		}
@@ -246,10 +256,12 @@ public class RelationshipMethodBuilder extends MethodBuilder {
 						.addAnnotation(PathVariable.class)
 						.build()
 				);
-		if (config.getSecurity() != null) {
-			String security = config.getSecurity().getSecurityString(config, relation, "UPDATE", "UPDATE");
-			methodById.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());
-		}
+		methodById = new AuthenticationInjector()
+				.withMethod("UPDATE")
+				.withType(config.getEntity())
+				.withRelation(relation.getEntityClass())
+				.withSecurityConfig(config.getSecurity())
+				.inject(methodById);
 		methodById.addStatement("$T entity = this.dataAccessor.readData(id)", config.getEntity());
 		methodById.beginControlFlow("if(entity == null)");
 		methodById.addStatement("throw new $T()", EntityNotFoundException.class);
@@ -286,10 +298,12 @@ public class RelationshipMethodBuilder extends MethodBuilder {
 						.addAnnotation(Valid.class)
 						.build()
 				);
-		if (config.getSecurity() != null) {
-			String security = config.getSecurity().getSecurityString(config, relation, "UPDATE", "UPDATE");
-			method.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());
-		}
+		method = new AuthenticationInjector()
+				.withMethod("UPDATE")
+				.withType(config.getEntity())
+				.withRelation(relation.getEntityClass())
+				.withSecurityConfig(config.getSecurity())
+				.inject(method);
 		if (config.getDataWrapper() != null && !config.getDataWrapper().equals(TypeName.OBJECT)) {
 			method.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), ParameterizedTypeName.get(ClassName.bestGuess(config.getDataWrapper().toString()), responseType)));
 		}
@@ -314,10 +328,12 @@ public class RelationshipMethodBuilder extends MethodBuilder {
 						.addAnnotation(PathVariable.class)
 						.build()
 				);
-		if (config.getSecurity() != null) {
-			String security = config.getSecurity().getSecurityString(config, relation, "UPDATE", "UPDATE");
-			methodById.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());
-		}
+		methodById = new AuthenticationInjector()
+				.withMethod("UPDATE")
+				.withType(config.getEntity())
+				.withRelation(relation.getEntityClass())
+				.withSecurityConfig(config.getSecurity())
+				.inject(methodById);
 		methodById.addStatement("$T entity = this.dataAccessor.readData(id)", config.getEntity());
 		methodById.beginControlFlow("if(entity == null)");
 		methodById.addStatement("throw new $T()", EntityNotFoundException.class);

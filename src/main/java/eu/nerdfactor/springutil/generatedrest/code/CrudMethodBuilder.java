@@ -1,6 +1,7 @@
 package eu.nerdfactor.springutil.generatedrest.code;
 
 import com.squareup.javapoet.*;
+import eu.nerdfactor.springutil.generatedrest.code.builder.AuthenticationInjector;
 import eu.nerdfactor.springutil.generatedrest.code.builder.MethodBuilder;
 import eu.nerdfactor.springutil.generatedrest.config.ControllerConfiguration;
 import eu.nerdfactor.springutil.generatedrest.util.GeneratedRestUtil;
@@ -8,7 +9,6 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.lang.model.element.Modifier;
@@ -41,12 +41,11 @@ public class CrudMethodBuilder extends MethodBuilder {
 						.addAnnotation(PathVariable.class)
 						.build()
 				);
-		if (config.getSecurity() != null) {
-			ClassName entityName = GeneratedRestUtil.toClassName(config.getEntity());
-			String role = config.getSecurity().getRole("READ", entityName.simpleName(), entityName.simpleName());
-			String security = "hasRole('" + role + "')";
-			method.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());
-		}
+		method = new AuthenticationInjector()
+				.withMethod("READ")
+				.withType(config.getEntity())
+				.withSecurityConfig(config.getSecurity())
+				.inject(method);
 		method.addStatement("$T entity = this.dataAccessor.readData(id)", config.getEntity());
 		method.beginControlFlow("if(entity == null)");
 		method.addStatement("throw new $T()", EntityNotFoundException.class);
@@ -77,12 +76,11 @@ public class CrudMethodBuilder extends MethodBuilder {
 						.addAnnotation(Valid.class)
 						.build()
 				);
-		if (config.getSecurity() != null) {
-			ClassName entityName = GeneratedRestUtil.toClassName(config.getEntity());
-			String role = config.getSecurity().getRole("CREATE", entityName.simpleName(), entityName.simpleName());
-			String security = "hasRole('" + role + "')";
-			method.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());
-		}
+		method = new AuthenticationInjector()
+				.withMethod("CREATE")
+				.withType(config.getEntity())
+				.withSecurityConfig(config.getSecurity())
+				.inject(method);
 		if (config.isWithDtos()) {
 			method.addStatement("$T created = this.dataMapper.map(dto, $T.class)", config.getEntity(), config.getEntity());
 		} else {
@@ -120,12 +118,11 @@ public class CrudMethodBuilder extends MethodBuilder {
 						.addAnnotation(Valid.class)
 						.build()
 				);
-		if (config.getSecurity() != null) {
-			ClassName entityName = GeneratedRestUtil.toClassName(config.getEntity());
-			String role = config.getSecurity().getRole("UPDATE", entityName.simpleName(), entityName.simpleName());
-			String security = "hasRole('" + role + "')";
-			method.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());
-		}
+		method = new AuthenticationInjector()
+				.withMethod("UPDATE")
+				.withType(config.getEntity())
+				.withSecurityConfig(config.getSecurity())
+				.inject(method);
 		method.addStatement("$T entity = this.dataAccessor.readData(id)", config.getEntity());
 		method.beginControlFlow("if(entity == null)");
 		method.addStatement("throw new $T()", EntityNotFoundException.class);
@@ -167,12 +164,11 @@ public class CrudMethodBuilder extends MethodBuilder {
 						.addAnnotation(Valid.class)
 						.build()
 				);
-		if (config.getSecurity() != null) {
-			ClassName entityName = GeneratedRestUtil.toClassName(config.getEntity());
-			String role = config.getSecurity().getRole("UPDATE", entityName.simpleName(), entityName.simpleName());
-			String security = "hasRole('" + role + "')";
-			method.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());
-		}
+		method = new AuthenticationInjector()
+				.withMethod("UPDATE")
+				.withType(config.getEntity())
+				.withSecurityConfig(config.getSecurity())
+				.inject(method);
 		method.addStatement("$T entity = this.dataAccessor.readData(id)", config.getEntity());
 		method.beginControlFlow("if(entity == null)");
 		method.addStatement("throw new $T()", EntityNotFoundException.class);
@@ -210,12 +206,11 @@ public class CrudMethodBuilder extends MethodBuilder {
 						.addAnnotation(PathVariable.class)
 						.build()
 				);
-		if (config.getSecurity() != null) {
-			ClassName entityName = GeneratedRestUtil.toClassName(config.getEntity());
-			String role = config.getSecurity().getRole("DELETE", entityName.simpleName(), entityName.simpleName());
-			String security = "hasRole('" + role + "')";
-			method.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());
-		}
+		method = new AuthenticationInjector()
+				.withMethod("DELETE")
+				.withType(config.getEntity())
+				.withSecurityConfig(config.getSecurity())
+				.inject(method);
 		method.addStatement("this.dataAccessor.deleteDataById(id)");
 		this.addNoContentStatement(method, config, responseType);
 		builder.addMethod(method.build());
