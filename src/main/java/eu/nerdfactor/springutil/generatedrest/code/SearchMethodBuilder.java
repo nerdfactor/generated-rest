@@ -4,10 +4,8 @@ import com.squareup.javapoet.*;
 import eu.nerdfactor.springutil.generatedrest.code.builder.AuthenticationInjector;
 import eu.nerdfactor.springutil.generatedrest.code.builder.MethodBuilder;
 import eu.nerdfactor.springutil.generatedrest.code.builder.ReturnStatementInjector;
-import eu.nerdfactor.springutil.generatedrest.config.ControllerConfiguration;
 import eu.nerdfactor.springutil.generatedrest.data.DataPage;
 import eu.nerdfactor.springutil.generatedrest.util.GeneratedRestUtil;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -25,56 +23,15 @@ public class SearchMethodBuilder extends MethodBuilder {
 
 	@Override
 	public TypeSpec.Builder build(TypeSpec.Builder builder) {
-		builder = this.addGetAllEntitiesMethod(builder, configuration);
-		builder = this.addSearchEntitiesMethod(builder, configuration);
-		return builder;
-	}
-
-	public TypeSpec.Builder addGetAllEntitiesMethod(@NotNull TypeSpec.Builder builder, @NotNull ControllerConfiguration config) {
-		if (config.hasExistingRequest(RequestMethod.GET, config.getRequest())) {
-			return builder;
-		}
-		GeneratedRestUtil.log("addGetAllEntitiesMethod", 1);
-		TypeName responseType = config.getResponse();
-		ParameterizedTypeName responseList = ParameterizedTypeName.get(ClassName.get(List.class), responseType);
-		MethodSpec.Builder method = MethodSpec
-				.methodBuilder("all")
-				.addAnnotation(AnnotationSpec.builder(GetMapping.class).addMember("value", "$S", config.getRequest()).build())
-				.addModifiers(Modifier.PUBLIC)
-				.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), responseList));
-		method = new AuthenticationInjector()
-				.withMethod("READ")
-				.withType(config.getEntity())
-				.withSecurityConfig(config.getSecurity())
-				.inject(method);
-		method.addStatement("$T<$T> responseList = new $T<>()", List.class, responseType, ArrayList.class);
-		method.beginControlFlow("for($T entity : this.dataAccessor.listData())", config.getEntity());
-		if (config.isWithDtos()) {
-			method.addStatement("$T response = this.dataMapper.map(entity, $T.class)", responseType, responseType);
-		} else {
-			method.addStatement("$T response = entity", responseType);
-		}
-		method.addStatement("responseList.add(response)");
-		method.endControlFlow();
-		method = new ReturnStatementInjector()
-				.withWrapper(this.configuration.getDataWrapper())
-				.withResponse(responseType)
-				.withResponseVariable("responseList")
-				.inject(method);
-		builder.addMethod(method.build());
-		return builder;
-	}
-
-	public TypeSpec.Builder addSearchEntitiesMethod(@NotNull TypeSpec.Builder builder, @NotNull ControllerConfiguration config) {
-		if (config.hasExistingRequest(RequestMethod.GET, config.getRequest() + "/search")) {
+		if (this.configuration.hasExistingRequest(RequestMethod.GET, this.configuration.getRequest() + "/search")) {
 			return builder;
 		}
 		GeneratedRestUtil.log("addSearchAllEntitiesMethod", 1);
-		TypeName responseType = config.getResponse();
+		TypeName responseType = this.configuration.getResponse();
 		ParameterizedTypeName responsePage = ParameterizedTypeName.get(ClassName.get(Page.class), responseType);
 		MethodSpec.Builder method = MethodSpec
 				.methodBuilder("searchAll")
-				.addAnnotation(AnnotationSpec.builder(GetMapping.class).addMember("value", "$S", config.getRequest() + "/search").build())
+				.addAnnotation(AnnotationSpec.builder(GetMapping.class).addMember("value", "$S", this.configuration.getRequest() + "/search").build())
 				.addModifiers(Modifier.PUBLIC)
 				.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), responsePage))
 				.addParameter(ParameterSpec.builder(String.class, "filter")
@@ -90,14 +47,14 @@ public class SearchMethodBuilder extends MethodBuilder {
 				);
 		method = new AuthenticationInjector()
 				.withMethod("READ")
-				.withType(config.getEntity())
-				.withSecurityConfig(config.getSecurity())
+				.withType(this.configuration.getEntity())
+				.withSecurityConfig(this.configuration.getSecurity())
 				.inject(method);
-		method.addStatement("$T<$T> spec = this.specificationBuilder.build(filter, $T.class)", Specification.class, config.getEntity(), config.getEntity());
+		method.addStatement("$T<$T> spec = this.specificationBuilder.build(filter, $T.class)", Specification.class, this.configuration.getEntity(), this.configuration.getEntity());
 		method.addStatement("$T<$T> responseList = new $T<>()", List.class, responseType, ArrayList.class);
-		method.addStatement("$T page = this.dataAccessor.searchData(spec, pageable)", ParameterizedTypeName.get(ClassName.get(Page.class), config.getEntity()));
-		method.beginControlFlow("for($T entity : page.getContent())", config.getEntity());
-		if (config.isWithDtos()) {
+		method.addStatement("$T page = this.dataAccessor.searchData(spec, pageable)", ParameterizedTypeName.get(ClassName.get(Page.class), this.configuration.getEntity()));
+		method.beginControlFlow("for($T entity : page.getContent())", this.configuration.getEntity());
+		if (this.configuration.isWithDtos()) {
 			method.addStatement("$T response = this.dataMapper.map(entity, $T.class)", responseType, responseType);
 		} else {
 			method.addStatement("$T response = entity", responseType);

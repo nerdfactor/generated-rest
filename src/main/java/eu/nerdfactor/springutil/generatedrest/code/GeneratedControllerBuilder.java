@@ -23,6 +23,7 @@ public class GeneratedControllerBuilder extends MultiStepBuilder<TypeSpec.Builde
 		TypeSpec.Builder builder = TypeSpec.classBuilder(configuration.getClassName()).addAnnotation(RestController.class).addModifiers(Modifier.PUBLIC);
 		this.and(new GeneratedPropertiesBuilder().withConfiguration(this.configuration));
 		this.and(new CrudMethodBuilder().withConfiguration(this.configuration));
+		this.and(new ListMethodBuilder().withConfiguration(this.configuration));
 		this.and(new SearchMethodBuilder().withConfiguration(this.configuration));
 		this.and(new RelationshipMethodBuilder().withConfiguration(this.configuration));
 		this.steps.forEach(buildStep -> buildStep.build(builder));
