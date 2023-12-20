@@ -3,7 +3,7 @@ package eu.nerdfactor.springutil.generatedrest.config;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
-import eu.nerdfactor.springutil.generatedrest.GeneratedRestUtil;
+import eu.nerdfactor.springutil.generatedrest.util.WordInflector;
 
 /**
  * Configuration for relation generation.
@@ -33,10 +33,6 @@ public class RelationConfiguration {
 	private TypeName idClass;
 
 	private String idAccessor;
-
-	public RelationConfiguration() {
-
-	}
 
 	public String getName() {
 		return name;
@@ -137,7 +133,7 @@ public class RelationConfiguration {
 
 	public String getMethodName(AccessorType type) {
 		String methodName = this.name.substring(0, 1).toUpperCase() + this.name.substring(1);
-		String singularName = GeneratedRestUtil.singularName(methodName);
+		String singularName = WordInflector.getInstance().singularize(methodName);
 		return switch (type) {
 			case GET -> "get" + methodName;
 			case SET -> "set" + methodName;

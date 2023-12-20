@@ -1,4 +1,4 @@
-package eu.nerdfactor.springutil.generatedrest;
+package eu.nerdfactor.springutil.generatedrest.util;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
@@ -35,31 +35,14 @@ public class GeneratedRestUtil {
 	}
 
 	/**
-	 * Simple method to turn a name into its singular version.
-	 * Will not work for all the special cases of plural forms.
-	 *
-	 * @param name The original name.
-	 * @return The singular name.
-	 */
-	public static String singularName(@NotNull String name) {
-		if (name.endsWith("ies")) {
-			name = name.substring(0, name.length() - 3) + "y";
-		}
-		if (name.endsWith("s")) {
-			name = name.substring(0, name.length() - 1);
-		}
-		return name;
-	}
-
-	/**
 	 * Removes a string from the end of a string.
 	 *
-	 * @param str The string.
+	 * @param str    The string.
 	 * @param remove The part to remove from the end.
 	 * @return The string without the removed part.
 	 */
 	public static String removeEnd(@NotNull String str, @NotNull String remove) {
-		if (remove.length() > 0 && str.endsWith(remove)) {
+		if (!remove.isEmpty() && str.endsWith(remove)) {
 			return str.substring(0, str.length() - remove.length());
 		}
 		return str;
@@ -90,7 +73,7 @@ public class GeneratedRestUtil {
 	 * adds a new prefix to the class.
 	 *
 	 * @param typeName The canonical name of the class.
-	 * @param prefix The new prefix for the class.
+	 * @param prefix   The new prefix for the class.
 	 * @return The converted ClassName.
 	 */
 	public static ClassName toClassName(String typeName, String prefix) {
@@ -102,9 +85,9 @@ public class GeneratedRestUtil {
 	/**
 	 * Get all the values from a specific annotation of the element in a Map.
 	 *
-	 * @param element The element to search within.
+	 * @param element             The element to search within.
 	 * @param annotationClassName The class name of the annotation.
-	 * @param elementUtils Utility object for elements.
+	 * @param elementUtils        Utility object for elements.
 	 * @return A map of values with name of value as keys.
 	 * @see GeneratedRestUtil#addAnnotatedValues
 	 */
@@ -117,10 +100,10 @@ public class GeneratedRestUtil {
 	 * Add all the values from a specific annotation of the element to a Map.
 	 * https://stackoverflow.com/a/52257877
 	 *
-	 * @param element The element to search within.
+	 * @param element             The element to search within.
 	 * @param annotationClassName The class name of the annotation.
-	 * @param elementUtils Utility object for elements.
-	 * @param values Map that values will be added to.
+	 * @param elementUtils        Utility object for elements.
+	 * @param values              Map that values will be added to.
 	 * @return A map of values with name of value as keys.
 	 */
 	public static Map<String, String> addAnnotatedValues(final Element element, final String annotationClassName, Elements elementUtils, Map<String, String> values) {
@@ -143,9 +126,9 @@ public class GeneratedRestUtil {
 	/**
 	 * Get all the values from a list of specific annotations of the element to a List of Maps.
 	 *
-	 * @param element The element to search within.
+	 * @param element             The element to search within.
 	 * @param annotationClassName The class name of the annotation.
-	 * @param elementUtils Utility object for elements.
+	 * @param elementUtils        Utility object for elements.
 	 * @return A list of map of values with name of value as keys.
 	 * @see GeneratedRestUtil#addAnnotatedValues
 	 */
@@ -159,10 +142,10 @@ public class GeneratedRestUtil {
 	 * https://stackoverflow.com/a/52257877
 	 * todo: Combine with addAnnotatedValues?
 	 *
-	 * @param element The element to search within.
+	 * @param element             The element to search within.
 	 * @param annotationClassName The class name of the annotation.
-	 * @param elementUtils Utility object for elements.
-	 * @param values List of Maps that values will be added to.
+	 * @param elementUtils        Utility object for elements.
+	 * @param values              List of Maps that values will be added to.
 	 * @return A list of map of values with name of value as keys.
 	 */
 	public static List<Map<String, String>> addAnnotatedListValues(final Element element, final String annotationClassName, Elements elementUtils, List<Map<String, String>> values) {
@@ -196,6 +179,7 @@ public class GeneratedRestUtil {
 	public static void log(String str) {
 		log(str, 0);
 	}
+
 	public static void log(String str, int indentation) {
 		if (LOG) {
 			System.out.println("[INFO] " + "  ".repeat(indentation) + str);
