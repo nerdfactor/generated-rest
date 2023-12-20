@@ -1,10 +1,7 @@
 package eu.nerdfactor.springutil.generatedrest.code;
 
 import com.squareup.javapoet.*;
-import eu.nerdfactor.springutil.generatedrest.code.builder.BuildStep;
-import eu.nerdfactor.springutil.generatedrest.code.builder.ConfiguredBuilder;
 import eu.nerdfactor.springutil.generatedrest.code.builder.MethodBuilder;
-import eu.nerdfactor.springutil.generatedrest.code.builder.MultiStepBuilder;
 import eu.nerdfactor.springutil.generatedrest.config.ControllerConfiguration;
 import eu.nerdfactor.springutil.generatedrest.data.DataPage;
 import eu.nerdfactor.springutil.generatedrest.util.GeneratedRestUtil;
@@ -21,32 +18,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.lang.model.element.Modifier;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
-public class SearchMethodBuilder extends MethodBuilder implements MultiStepBuilder, BuildStep, ConfiguredBuilder {
-
-	ControllerConfiguration configuration;
-	Queue<BuildStep> steps = new LinkedList<>();
+public class SearchMethodBuilder extends MethodBuilder {
 
 	@Override
 	public TypeSpec.Builder build(TypeSpec.Builder builder) {
 		builder = this.addGetAllEntitiesMethod(builder, configuration);
 		builder = this.addSearchEntitiesMethod(builder, configuration);
 		return builder;
-	}
-
-	@Override
-	public SearchMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
-		this.configuration = configuration;
-		return this;
-	}
-
-	@Override
-	public SearchMethodBuilder and(BuildStep buildStep) {
-		this.steps.add(buildStep);
-		return this;
 	}
 
 	public TypeSpec.Builder addGetAllEntitiesMethod(@NotNull TypeSpec.Builder builder, @NotNull ControllerConfiguration config) {

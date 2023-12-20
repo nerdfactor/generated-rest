@@ -1,10 +1,7 @@
 package eu.nerdfactor.springutil.generatedrest.code;
 
 import com.squareup.javapoet.*;
-import eu.nerdfactor.springutil.generatedrest.code.builder.BuildStep;
-import eu.nerdfactor.springutil.generatedrest.code.builder.ConfiguredBuilder;
 import eu.nerdfactor.springutil.generatedrest.code.builder.MethodBuilder;
-import eu.nerdfactor.springutil.generatedrest.code.builder.MultiStepBuilder;
 import eu.nerdfactor.springutil.generatedrest.config.AccessorType;
 import eu.nerdfactor.springutil.generatedrest.config.ControllerConfiguration;
 import eu.nerdfactor.springutil.generatedrest.config.RelationConfiguration;
@@ -12,21 +9,15 @@ import eu.nerdfactor.springutil.generatedrest.config.RelationType;
 import eu.nerdfactor.springutil.generatedrest.util.GeneratedRestUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.lang.model.element.Modifier;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
-public class RelationshipMethodBuilder extends MethodBuilder implements MultiStepBuilder, BuildStep, ConfiguredBuilder {
-
-	ControllerConfiguration configuration;
-	Queue<BuildStep> steps = new LinkedList<>();
+public class RelationshipMethodBuilder extends MethodBuilder {
 
 	@Override
 	public TypeSpec.Builder build(TypeSpec.Builder builder) {
@@ -46,18 +37,6 @@ public class RelationshipMethodBuilder extends MethodBuilder implements MultiSte
 			}
 		}
 		return builder;
-	}
-
-	@Override
-	public RelationshipMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
-		this.configuration = configuration;
-		return this;
-	}
-
-	@Override
-	public RelationshipMethodBuilder and(BuildStep buildStep) {
-		this.steps.add(buildStep);
-		return this;
 	}
 
 	public TypeSpec.Builder addGetSingleRelationMethod(TypeSpec.Builder builder, ControllerConfiguration config, RelationConfiguration relation) {
