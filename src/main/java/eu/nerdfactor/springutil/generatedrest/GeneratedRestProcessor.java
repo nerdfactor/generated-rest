@@ -10,6 +10,7 @@ import eu.nerdfactor.springutil.generatedrest.config.ControllerConfiguration;
 import eu.nerdfactor.springutil.generatedrest.config.SecurityConfiguration;
 import eu.nerdfactor.springutil.generatedrest.export.GeneratedRestExporter;
 import eu.nerdfactor.springutil.generatedrest.export.JavaClassExporter;
+import eu.nerdfactor.springutil.generatedrest.util.GeneratedRestUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
