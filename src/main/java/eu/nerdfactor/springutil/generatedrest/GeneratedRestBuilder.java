@@ -5,8 +5,7 @@ import eu.nerdfactor.springutil.generatedrest.config.AccessorType;
 import eu.nerdfactor.springutil.generatedrest.config.ControllerConfiguration;
 import eu.nerdfactor.springutil.generatedrest.config.RelationConfiguration;
 import eu.nerdfactor.springutil.generatedrest.config.RelationType;
-import eu.nerdfactor.springutil.generatedrest.data.DataPage;
-import eu.nerdfactor.springutil.generatedrest.data.DataSpecificationBuilder;
+import eu.nerdfactor.springutil.generatedrest.data.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
@@ -39,122 +38,62 @@ public class GeneratedRestBuilder {
 	 * @return The new TypeSpec.
 	 */
 	public TypeSpec buildController(ControllerConfiguration configuration) {
-		// Create the new class.
 		TypeSpec.Builder builder = TypeSpec
 				.classBuilder(configuration.getClassName())
 				.addAnnotation(RestController.class)
 				.addModifiers(Modifier.PUBLIC);
 
-		// Add basic elements for entity access.
-		builder = this.addElementsForEntityManager(builder);
-		builder = this.addElementsForDataAccessor(builder, configuration.getDataAccessorClass());
-		if (configuration.getDataMapperClass() != null) {
-			builder = this.addElementsForDataMapper(builder, configuration.getDataMapperClass());
-		}
-		if (configuration.getDataMergerClass() != null) {
-			builder = this.addElementsForDataMerger(builder, configuration.getDataMergerClass());
-		}
-		builder = this.addElementsForSpecificationBuilder(builder);
+		builder = this.addProperties(builder,
+				configuration.getDataAccessorClass(),
+				configuration.getDataMapperClass(),
+				configuration.getDataMergerClass());
 
 		builder = this.addConstructor(builder,
 				configuration.getDataAccessorClass(),
 				configuration.getDataMapperClass(),
 				configuration.getDataMergerClass());
 
-		// Add elements to load and search entities.
-		builder = this.addGetAllEntitiesMethod(builder, configuration);
-		builder = this.addSearchEntitiesMethod(builder, configuration);
+		builder = this.addListMethods(builder, configuration);
 
-		// Add crud elements for entity.
-		builder = this.addGetEntityMethod(builder, configuration);
-		builder = this.addCreateEntityMethod(builder, configuration);
-		builder = this.addSetEntityMethod(builder, configuration);
-		builder = this.addUpdateEntityMethod(builder, configuration);
-		builder = this.addDeleteEntityMethod(builder, configuration);
+		builder = this.addCrudMethods(builder, configuration);
 
-		if (configuration.isWithRelations() && configuration.getRelations() != null && !configuration.getRelations().isEmpty()) {
-			for (RelationConfiguration relation : configuration.getRelations().values()) {
-				if (relation.getType() == RelationType.SINGLE) {
-					builder = this.addGetSingleRelationMethod(builder, configuration, relation);
-					builder = this.addSetSingleRelationMethod(builder, configuration, relation);
-					builder = this.addDeleteSingleRelationMethod(builder, configuration, relation);
-				}
-				if (relation.getType() == RelationType.MULTIPLE) {
-					builder = this.addGetMultipleRelationsMethod(builder, configuration, relation);
-					builder = this.addAddToRelationsMethod(builder, configuration, relation);
-					builder = this.addDeleteFromRelationsMethod(builder, configuration, relation);
-				}
-			}
-		}
+		builder = this.addRelationshipMethods(builder, configuration);
 
 		return builder.build();
 	}
 
 	/**
-	 * Creates a fields and methods for a DataMapper and adds it to the TypeSpec.
-	 *
-	 * @param builder         The builder for a TypeSpec.
-	 * @param dataMapperClass The TypeName for the DataMapper.
-	 * @return The builder with added fields and methods.
-	 */
-	public TypeSpec.Builder addElementsForDataMapper(TypeSpec.Builder builder, TypeName dataMapperClass) {
-		builder.addField(FieldSpec
-				.builder(dataMapperClass, "dataMapper", Modifier.PROTECTED)
-				.build());
-		return builder;
-	}
-
-	/**
-	 * Creates a fields and methods for a DataAccessor and adds it to the TypeSpec.
+	 * Creates all required properties.
 	 *
 	 * @param builder           The builder for a TypeSpec.
 	 * @param dataAccessorClass The TypeName for the DataAccessor.
-	 * @return The builder with added fields and methods.
+	 * @param dataMapperClass   The TypeName for the DataMapper.
+	 * @param dataMergerClass   The TypeName for the DataAccessor.
+	 * @return The builder with added properties.
 	 */
-	public TypeSpec.Builder addElementsForDataAccessor(TypeSpec.Builder builder, ParameterizedTypeName dataAccessorClass) {
-		builder.addField(FieldSpec
-				.builder(dataAccessorClass, "dataAccessor", Modifier.PROTECTED)
-				.build());
+	public TypeSpec.Builder addProperties(TypeSpec.Builder builder, ParameterizedTypeName dataAccessorClass, TypeName dataMapperClass, TypeName dataMergerClass) {
+		builder = this.addElementsForEntityManager(builder);
+		builder = this.addElementsForDataAccessor(builder, dataAccessorClass);
+		if (dataMapperClass != null) {
+			builder = this.addElementsForDataMapper(builder, dataMapperClass);
+		}
+		if (dataMergerClass != null) {
+			builder = this.addElementsForDataMerger(builder, dataMergerClass);
+		}
+		builder = this.addElementsForSpecificationBuilder(builder);
 		return builder;
 	}
 
 	/**
-	 * Creates a fields and methods for a DataMerger and adds it to the TypeSpec.
+	 * Creates a constructor with all the required properties which can be autowired.
 	 *
-	 * @param builder         The builder for a TypeSpec.
-	 * @param dataMergerClass The TypeName for the DataMapper.
-	 * @return The builder with added fields and methods.
+	 * @param builder           The builder for a TypeSpec.
+	 * @param dataAccessorClass The TypeName for the DataAccessor.
+	 * @param dataMapperClass   The TypeName for the DataMapper.
+	 * @param dataMergerClass   The TypeName for the DataAccessor.
+	 * @return The builder with added constructor.
 	 */
-	public TypeSpec.Builder addElementsForDataMerger(TypeSpec.Builder builder, TypeName dataMergerClass) {
-		builder.addField(FieldSpec
-				.builder(dataMergerClass, "dataMerger", Modifier.PROTECTED)
-				.build());
-		return builder;
-	}
-
-	public TypeSpec.Builder addElementsForSpecificationBuilder(TypeSpec.Builder builder) {
-		ClassName specificationClass = ClassName.get(DataSpecificationBuilder.class);
-		builder.addField(FieldSpec
-				.builder(specificationClass, "specificationBuilder", Modifier.PROTECTED)
-				.build());
-		return builder;
-	}
-
-	/**
-	 * Creates a fields and methods for a jpa EntityManager and adds it to the TypeSpec.
-	 *
-	 * @param builder The builder for a TypeSpec.
-	 * @return The builder with added fields and methods.
-	 */
-	public TypeSpec.Builder addElementsForEntityManager(TypeSpec.Builder builder) {
-		builder.addField(FieldSpec
-				.builder(EntityManager.class, "entityManager", Modifier.PROTECTED)
-				.build());
-		return builder;
-	}
-
 	public TypeSpec.Builder addConstructor(TypeSpec.Builder builder, ParameterizedTypeName dataAccessorClass, TypeName dataMapperClass, TypeName dataMergerClass) {
-
 		builder.addMethod(MethodSpec
 				.constructorBuilder()
 				.addAnnotation(Autowired.class)
@@ -169,6 +108,130 @@ public class GeneratedRestBuilder {
 				.addStatement("this.dataMerger = dataMerger")
 				.addStatement("this.specificationBuilder = specificationBuilder")
 				.addStatement("this.entityManager = entityManager")
+				.build());
+		return builder;
+	}
+
+	/**
+	 * Adds all required methods for listing.
+	 *
+	 * @param builder       The builder for a TypeSpec.
+	 * @param configuration The controller configuration.
+	 * @return The builder with added methods.
+	 */
+	public TypeSpec.Builder addListMethods(@NotNull TypeSpec.Builder builder, @NotNull ControllerConfiguration configuration) {
+		builder = this.addGetAllEntitiesMethod(builder, configuration);
+		builder = this.addSearchEntitiesMethod(builder, configuration);
+		return builder;
+	}
+
+	/**
+	 * Adds all required methods for crud operations.
+	 *
+	 * @param builder       The builder for a TypeSpec.
+	 * @param configuration The controller configuration.
+	 * @return The builder with added methods.
+	 */
+	public TypeSpec.Builder addCrudMethods(@NotNull TypeSpec.Builder builder, @NotNull ControllerConfiguration configuration) {
+		builder = this.addGetEntityMethod(builder, configuration);
+		builder = this.addCreateEntityMethod(builder, configuration);
+		builder = this.addSetEntityMethod(builder, configuration);
+		builder = this.addUpdateEntityMethod(builder, configuration);
+		builder = this.addDeleteEntityMethod(builder, configuration);
+		return builder;
+	}
+
+	/**
+	 * Adds all required methods for operations on relationships.
+	 *
+	 * @param builder       The builder for a TypeSpec.
+	 * @param configuration The controller configuration.
+	 * @return The builder with added methods.
+	 */
+	public TypeSpec.Builder addRelationshipMethods(@NotNull TypeSpec.Builder builder, @NotNull ControllerConfiguration configuration) {
+		if (!configuration.isWithRelations() || configuration.getRelations() == null || configuration.getRelations().isEmpty()) {
+			return builder;
+		}
+		for (RelationConfiguration relation : configuration.getRelations().values()) {
+			if (relation.getType() == RelationType.SINGLE) {
+				builder = this.addGetSingleRelationMethod(builder, configuration, relation);
+				builder = this.addSetSingleRelationMethod(builder, configuration, relation);
+				builder = this.addDeleteSingleRelationMethod(builder, configuration, relation);
+			}
+			if (relation.getType() == RelationType.MULTIPLE) {
+				builder = this.addGetMultipleRelationsMethod(builder, configuration, relation);
+				builder = this.addAddToRelationsMethod(builder, configuration, relation);
+				builder = this.addDeleteFromRelationsMethod(builder, configuration, relation);
+			}
+		}
+		return builder;
+	}
+
+	/**
+	 * Creates a field for a {@link DataMapper} and adds it to the TypeSpec.
+	 *
+	 * @param builder         The builder for a TypeSpec.
+	 * @param dataMapperClass The TypeName for the DataMapper.
+	 * @return The builder with added field.
+	 */
+	public TypeSpec.Builder addElementsForDataMapper(TypeSpec.Builder builder, TypeName dataMapperClass) {
+		builder.addField(FieldSpec
+				.builder(dataMapperClass, "dataMapper", Modifier.PROTECTED)
+				.build());
+		return builder;
+	}
+
+	/**
+	 * Creates a field for a {@link DataAccessor} and adds it to the TypeSpec.
+	 *
+	 * @param builder           The builder for a TypeSpec.
+	 * @param dataAccessorClass The TypeName for the DataAccessor.
+	 * @return The builder with added field.
+	 */
+	public TypeSpec.Builder addElementsForDataAccessor(TypeSpec.Builder builder, ParameterizedTypeName dataAccessorClass) {
+		builder.addField(FieldSpec
+				.builder(dataAccessorClass, "dataAccessor", Modifier.PROTECTED)
+				.build());
+		return builder;
+	}
+
+	/**
+	 * Creates a field for a {@link DataMerger} and adds it to the TypeSpec.
+	 *
+	 * @param builder         The builder for a TypeSpec.
+	 * @param dataMergerClass The TypeName for the DataMerger.
+	 * @return The builder with added field.
+	 */
+	public TypeSpec.Builder addElementsForDataMerger(TypeSpec.Builder builder, TypeName dataMergerClass) {
+		builder.addField(FieldSpec
+				.builder(dataMergerClass, "dataMerger", Modifier.PROTECTED)
+				.build());
+		return builder;
+	}
+
+	/**
+	 * Creates a field for a {@link DataSpecificationBuilder} and adds it to the TypeSpec.
+	 *
+	 * @param builder The builder for a TypeSpec.
+	 * @return The builder with added field.
+	 */
+	public TypeSpec.Builder addElementsForSpecificationBuilder(TypeSpec.Builder builder) {
+		ClassName specificationClass = ClassName.get(DataSpecificationBuilder.class);
+		builder.addField(FieldSpec
+				.builder(specificationClass, "specificationBuilder", Modifier.PROTECTED)
+				.build());
+		return builder;
+	}
+
+	/**
+	 * Creates a field for a jpa {@link EntityManager} and adds it to the TypeSpec.
+	 *
+	 * @param builder The builder for a TypeSpec.
+	 * @return The builder with added field.
+	 */
+	public TypeSpec.Builder addElementsForEntityManager(TypeSpec.Builder builder) {
+		builder.addField(FieldSpec
+				.builder(EntityManager.class, "entityManager", Modifier.PROTECTED)
 				.build());
 		return builder;
 	}
