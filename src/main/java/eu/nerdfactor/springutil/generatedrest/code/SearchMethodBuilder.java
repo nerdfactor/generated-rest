@@ -3,6 +3,7 @@ package eu.nerdfactor.springutil.generatedrest.code;
 import com.squareup.javapoet.*;
 import eu.nerdfactor.springutil.generatedrest.code.builder.AuthenticationInjector;
 import eu.nerdfactor.springutil.generatedrest.code.builder.MethodBuilder;
+import eu.nerdfactor.springutil.generatedrest.code.builder.ReturnStatementInjector;
 import eu.nerdfactor.springutil.generatedrest.config.ControllerConfiguration;
 import eu.nerdfactor.springutil.generatedrest.data.DataPage;
 import eu.nerdfactor.springutil.generatedrest.util.GeneratedRestUtil;
@@ -55,7 +56,11 @@ public class SearchMethodBuilder extends MethodBuilder {
 		}
 		method.addStatement("responseList.add(response)");
 		method.endControlFlow();
-		this.addReturnStatement(method, config, responseType, "responseList");
+		method = new ReturnStatementInjector()
+				.withWrapper(this.configuration.getDataWrapper())
+				.withResponse(responseType)
+				.withResponseVariable("responseList")
+				.inject(method);
 		builder.addMethod(method.build());
 		return builder;
 	}
@@ -100,7 +105,11 @@ public class SearchMethodBuilder extends MethodBuilder {
 		method.addStatement("responseList.add(response)");
 		method.endControlFlow();
 		method.addStatement("$T<$T> responsePage = new $T<>(responseList, page.getPageable(), page.getTotalElements())", Page.class, responseType, DataPage.class);
-		this.addReturnStatement(method, config, responseType, "responsePage");
+		method = new ReturnStatementInjector()
+				.withWrapper(this.configuration.getDataWrapper())
+				.withResponse(responseType)
+				.withResponseVariable("responsePage")
+				.inject(method);
 		builder.addMethod(method.build());
 		return builder;
 	}

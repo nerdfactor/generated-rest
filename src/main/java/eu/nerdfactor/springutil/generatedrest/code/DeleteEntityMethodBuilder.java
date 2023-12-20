@@ -3,6 +3,8 @@ package eu.nerdfactor.springutil.generatedrest.code;
 import com.squareup.javapoet.*;
 import eu.nerdfactor.springutil.generatedrest.code.builder.AuthenticationInjector;
 import eu.nerdfactor.springutil.generatedrest.code.builder.MethodBuilder;
+import eu.nerdfactor.springutil.generatedrest.code.builder.NoContentStatementInjector;
+import eu.nerdfactor.springutil.generatedrest.code.builder.ReturnStatementInjector;
 import eu.nerdfactor.springutil.generatedrest.util.GeneratedRestUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
@@ -36,7 +38,10 @@ public class DeleteEntityMethodBuilder extends MethodBuilder {
 				.withSecurityConfig(this.configuration.getSecurity())
 				.inject(method);
 		method.addStatement("this.dataAccessor.deleteDataById(id)");
-		this.addNoContentStatement(method, this.configuration, responseType);
+		method = new NoContentStatementInjector()
+				.withWrapper(this.configuration.getDataWrapper())
+				.withResponse(responseType)
+				.inject(method);
 		builder.addMethod(method.build());
 		return builder;
 	}

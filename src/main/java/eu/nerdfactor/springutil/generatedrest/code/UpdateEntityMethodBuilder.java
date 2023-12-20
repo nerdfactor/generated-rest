@@ -3,11 +3,15 @@ package eu.nerdfactor.springutil.generatedrest.code;
 import com.squareup.javapoet.*;
 import eu.nerdfactor.springutil.generatedrest.code.builder.AuthenticationInjector;
 import eu.nerdfactor.springutil.generatedrest.code.builder.MethodBuilder;
+import eu.nerdfactor.springutil.generatedrest.code.builder.ReturnStatementInjector;
 import eu.nerdfactor.springutil.generatedrest.util.GeneratedRestUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.lang.model.element.Modifier;
 
@@ -56,7 +60,11 @@ public class UpdateEntityMethodBuilder extends MethodBuilder {
 		} else {
 			method.addStatement("$T response = updated", responseType);
 		}
-		this.addReturnStatement(method, this.configuration, responseType, "response");
+		method = new ReturnStatementInjector()
+				.withWrapper(this.configuration.getDataWrapper())
+				.withResponse(responseType)
+				.withResponseVariable("response")
+				.inject(method);
 		builder.addMethod(method.build());
 		return builder;
 	}

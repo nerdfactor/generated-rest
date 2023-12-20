@@ -3,6 +3,8 @@ package eu.nerdfactor.springutil.generatedrest.code;
 import com.squareup.javapoet.*;
 import eu.nerdfactor.springutil.generatedrest.code.builder.AuthenticationInjector;
 import eu.nerdfactor.springutil.generatedrest.code.builder.MethodBuilder;
+import eu.nerdfactor.springutil.generatedrest.code.builder.NoContentStatementInjector;
+import eu.nerdfactor.springutil.generatedrest.code.builder.ReturnStatementInjector;
 import eu.nerdfactor.springutil.generatedrest.config.AccessorType;
 import eu.nerdfactor.springutil.generatedrest.config.ControllerConfiguration;
 import eu.nerdfactor.springutil.generatedrest.config.RelationConfiguration;
@@ -70,7 +72,11 @@ public class RelationshipMethodBuilder extends MethodBuilder {
 		} else {
 			method.addStatement("$T response = entity." + relation.getGetter() + "()", responseType);
 		}
-		this.addReturnStatement(method, config, responseType, "response");
+		method = new ReturnStatementInjector()
+				.withWrapper(this.configuration.getDataWrapper())
+				.withResponse(responseType)
+				.withResponseVariable("response")
+				.inject(method);
 		builder.addMethod(method.build());
 		return builder;
 	}
@@ -151,7 +157,10 @@ public class RelationshipMethodBuilder extends MethodBuilder {
 		method.addStatement("throw new $T()", EntityNotFoundException.class);
 		method.endControlFlow();
 		method.addStatement("entity." + relation.getSetter() + "(null)");
-		this.addNoContentStatement(method, config, responseType);
+		method = new NoContentStatementInjector()
+				.withWrapper(this.configuration.getDataWrapper())
+				.withResponse(responseType)
+				.inject(method);
 		builder.addMethod(method.build());
 		return builder;
 	}
@@ -192,7 +201,11 @@ public class RelationshipMethodBuilder extends MethodBuilder {
 		}
 		method.addStatement("responseList.add(response)");
 		method.endControlFlow();
-		this.addReturnStatement(method, config, responseType, "responseList");
+		method = new ReturnStatementInjector()
+				.withWrapper(this.configuration.getDataWrapper())
+				.withResponse(responseType)
+				.withResponseVariable("responseList")
+				.inject(method);
 		builder.addMethod(method.build());
 		return builder;
 	}
@@ -340,7 +353,10 @@ public class RelationshipMethodBuilder extends MethodBuilder {
 		methodById.endControlFlow();
 		methodById.addStatement("$T rel = this.entityManager.getReference($T.class, relationId)", relation.getEntityClass(), relation.getEntityClass());
 		methodById.addStatement("entity." + relation.getRemover() + "(rel)");
-		this.addNoContentStatement(methodById, config, responseType);
+		methodById = new NoContentStatementInjector()
+				.withWrapper(this.configuration.getDataWrapper())
+				.withResponse(responseType)
+				.inject(methodById);
 		builder.addMethod(methodById.build());
 		return builder;
 	}

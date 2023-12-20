@@ -20,28 +20,4 @@ public class MethodBuilder implements Buildable<TypeSpec.Builder>, ConfiguredBui
 		this.configuration = configuration;
 		return this;
 	}
-
-	protected MethodSpec.Builder addReturnStatement(MethodSpec.Builder method, ControllerConfiguration config, TypeName responseType, String variable) {
-		if (config.getDataWrapper() != null && !config.getDataWrapper().equals(TypeName.OBJECT)) {
-			method.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), ParameterizedTypeName.get(ClassName.bestGuess(config.getDataWrapper().toString()), responseType)));
-			method.addStatement("$T<$T> wrapper = new $T<>()", config.getDataWrapper(), responseType, config.getDataWrapper());
-			method.addStatement("wrapper.setContent(" + variable + ")");
-			method.addStatement("return new $T<>(wrapper, $T.OK)", ResponseEntity.class, HttpStatus.class);
-		} else {
-			method.addStatement("return new $T<>(" + variable + ", $T.OK)", ResponseEntity.class, HttpStatus.class);
-		}
-		return method;
-	}
-
-	protected MethodSpec.Builder addNoContentStatement(MethodSpec.Builder method, ControllerConfiguration config, TypeName responseType) {
-		if (config.getDataWrapper() != null && !config.getDataWrapper().equals(TypeName.OBJECT)) {
-			method.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), ParameterizedTypeName.get(ClassName.bestGuess(config.getDataWrapper().toString()), responseType)));
-			method.addStatement("$T<$T> wrapper = new $T<>()", config.getDataWrapper(), responseType, config.getDataWrapper());
-			method.addStatement("wrapper.noContent()");
-			method.addStatement("return new $T<>(wrapper, $T.OK)", ResponseEntity.class, HttpStatus.class);
-		} else {
-			method.addStatement("return ResponseEntity.noContent().build()", ResponseEntity.class);
-		}
-		return method;
-	}
 }

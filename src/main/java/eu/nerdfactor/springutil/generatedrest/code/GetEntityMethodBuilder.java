@@ -3,6 +3,7 @@ package eu.nerdfactor.springutil.generatedrest.code;
 import com.squareup.javapoet.*;
 import eu.nerdfactor.springutil.generatedrest.code.builder.AuthenticationInjector;
 import eu.nerdfactor.springutil.generatedrest.code.builder.MethodBuilder;
+import eu.nerdfactor.springutil.generatedrest.code.builder.ReturnStatementInjector;
 import eu.nerdfactor.springutil.generatedrest.util.GeneratedRestUtil;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
@@ -45,7 +46,11 @@ public class GetEntityMethodBuilder extends MethodBuilder {
 		} else {
 			method.addStatement("$T response = entity", responseType);
 		}
-		this.addReturnStatement(method, this.configuration, responseType, "response");
+		method = new ReturnStatementInjector()
+				.withWrapper(this.configuration.getDataWrapper())
+				.withResponse(responseType)
+				.withResponseVariable("response")
+				.inject(method);
 		builder.addMethod(method.build());
 		return builder;
 	}
