@@ -1,6 +1,7 @@
 package eu.nerdfactor.springutil.generatedrest.config;
 
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.TypeName;
 import eu.nerdfactor.springutil.generatedrest.util.GeneratedRestUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,24 +37,16 @@ public class SecurityConfiguration {
 				.toUpperCase();
 	}
 
-	public String getSecurityString(ControllerConfiguration config, String method) {
-		ClassName entityName = GeneratedRestUtil.toClassName(config.getEntity());
-		String base = this.getRole(method, entityName.simpleName(), entityName.simpleName());
-		return "hasRole('" + base + "')";
-	}
-
-	public String getSecurityString(ControllerConfiguration config, RelationConfiguration relation, String method, String methodBase) {
-		String role = this.getRole(method, relation.getEntityClass().simpleName(), relation.getEntityClass().simpleName());
-		String security = "hasRole('" + role + "')";
-		if (config.getSecurity().inclusive) {
-			ClassName baseEntityName = GeneratedRestUtil.toClassName(config.getEntity());
-			String base = this.getRole(methodBase, baseEntityName.simpleName(), baseEntityName.simpleName());
-			security += " and hasRole('" + base + "')";
+	public String getSecurityString(TypeName entity, TypeName relation, String method, String methodBase) {
+		String relationEntityName = GeneratedRestUtil.toClassName(relation).simpleName();
+		String relationRole = this.getRole(method, relationEntityName, relationEntityName);
+		String security = "hasRole('" + relationRole + "')";
+		if (this.inclusive) {
+			String baseEntityName = GeneratedRestUtil.toClassName(entity).simpleName();
+			String baseRole = this.getRole(methodBase, baseEntityName, baseEntityName);
+			security += " and hasRole('" + baseRole + "')";
 		}
 		return security;
-	}
-
-	public SecurityConfiguration() {
 	}
 
 	public SecurityConfiguration(ClassName className, String pattern, boolean inclusive) {
