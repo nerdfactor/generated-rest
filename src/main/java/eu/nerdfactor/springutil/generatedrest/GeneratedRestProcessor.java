@@ -10,11 +10,13 @@ import eu.nerdfactor.springutil.generatedrest.config.ControllerConfiguration;
 import eu.nerdfactor.springutil.generatedrest.config.SecurityConfiguration;
 import eu.nerdfactor.springutil.generatedrest.export.GeneratedRestExporter;
 import eu.nerdfactor.springutil.generatedrest.export.JavaClassExporter;
+import eu.nerdfactor.springutil.generatedrest.util.AnnotationValueExtractor;
 import eu.nerdfactor.springutil.generatedrest.util.GeneratedRestUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.processing.*;
+import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
@@ -35,6 +37,7 @@ import java.util.*;
 		"eu.nerdfactor.springutil.generatedrest.annotation.GeneratedRestController",
 		"eu.nerdfactor.springutil.generatedrest.annotation.GeneratedRestConfiguration"
 })
+@SupportedSourceVersion(SourceVersion.RELEASE_17)
 @AutoService(Processor.class)
 public class GeneratedRestProcessor extends AbstractProcessor {
 
@@ -60,13 +63,12 @@ public class GeneratedRestProcessor extends AbstractProcessor {
 			if (element.getKind() != ElementKind.CLASS) {
 				return true;
 			}
+			new AnnotationValueExtractor()
+					.withUtils(this.elementUtils)
+					.withElement(element)
+					.forClass(GeneratedRestConfiguration.class)
+					.extractInto(generatedConfig);
 
-			GeneratedRestUtil.addAnnotatedValues(
-					element,
-					GeneratedRestConfiguration.class.getCanonicalName(),
-					this.elementUtils,
-					generatedConfig
-			);
 			GeneratedRestUtil.LOG = !generatedConfig.getOrDefault("log", "false").equals("false");
 
 			GeneratedRestUtil.log("GeneratedConfig");
@@ -77,12 +79,12 @@ public class GeneratedRestProcessor extends AbstractProcessor {
 
 		// Get all DynamicRestController annotations and gather information from the specified
 		// entity in order to create a ControllerConfiguration.
-		this.findControllerValues(roundEnvironment).forEach(values -> {
+		this.findControllerValues(roundEnvironment).forEach(wrapper -> {
 			ControllerConfiguration config = ControllerConfiguration.builder()
-					.fromElement(values.getKey())
+					.fromElement(wrapper.getElement())
 					.withUtils(this.elementUtils)
 					.withEnvironment(roundEnvironment)
-					.withAnnotatedValues(values.getValue())
+					.withAnnotatedValues(wrapper.getValues())
 					.withPrefix(generatedConfig.getOrDefault("classNamePrefix", "Generated"))
 					.withPattern(generatedConfig.getOrDefault("classNamePattern", "{PREFIX}{NAME}"))
 					.withDataWrapper(ClassName.bestGuess(generatedConfig.getOrDefault("dataWrapper", Object.class.getCanonicalName())))
@@ -123,23 +125,22 @@ public class GeneratedRestProcessor extends AbstractProcessor {
 		return true;
 	}
 
-	private List<Map.Entry<Element, Map<String, String>>> findControllerValues(RoundEnvironment roundEnvironment) {
-		List<Map.Entry<Element, Map<String, String>>> controllerValues = new ArrayList<>();
+	private List<AnnotationValueExtractor.ValueWrapper> findControllerValues(RoundEnvironment roundEnvironment) {
+		List<AnnotationValueExtractor.ValueWrapper> controllerValues = new ArrayList<>();
 		for (Element element : roundEnvironment.getElementsAnnotatedWith(GeneratedRestController.List.class)) {
-			GeneratedRestUtil.getAnnotatedListValues(
-					element,
-					GeneratedRestController.List.class.getCanonicalName(),
-					this.elementUtils
-			).forEach(annotatedValues -> {
-				controllerValues.add(Map.entry(element, annotatedValues));
-			});
+			controllerValues.addAll(new AnnotationValueExtractor()
+					.forClass(GeneratedRestController.List.class)
+					.withElement(element)
+					.withUtils(this.elementUtils)
+					.extractList());
 		}
 		for (Element element : roundEnvironment.getElementsAnnotatedWith(GeneratedRestController.class)) {
-			controllerValues.add(Map.entry(element, GeneratedRestUtil.getAnnotatedValues(
-					element,
-					GeneratedRestController.class.getCanonicalName(),
-					this.elementUtils
-			)));
+			controllerValues.add(new AnnotationValueExtractor()
+					.forClass(GeneratedRestController.class)
+					.withElement(element)
+					.withUtils(this.elementUtils)
+					.extract());
+
 		}
 		return controllerValues;
 	}

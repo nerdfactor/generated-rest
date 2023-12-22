@@ -7,6 +7,7 @@ import eu.nerdfactor.springutil.generatedrest.annotation.IdAccessor;
 import eu.nerdfactor.springutil.generatedrest.data.DataAccessor;
 import eu.nerdfactor.springutil.generatedrest.data.DataMapper;
 import eu.nerdfactor.springutil.generatedrest.data.DataMerger;
+import eu.nerdfactor.springutil.generatedrest.util.AnnotationValueExtractor;
 import eu.nerdfactor.springutil.generatedrest.util.GeneratedRestUtil;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.web.bind.annotation.*;
@@ -144,7 +145,13 @@ public class ControllerConfigurationBuilder {
 				for (AnnotationMirror anno : method.getAnnotationMirrors()) {
 					Arrays.asList(RequestMapping.class, GetMapping.class, PostMapping.class, PutMapping.class, PatchMapping.class, DeleteMapping.class).forEach(cls -> {
 						if (cls.getCanonicalName().equals(anno.getAnnotationType().toString())) {
-							Map<String, String> requestMappingAnnotatedValues = GeneratedRestUtil.getAnnotatedValues(method, cls.getCanonicalName(), this.elementUtils);
+							Map<String, String> requestMappingAnnotatedValues = new AnnotationValueExtractor()
+									.withUtils(this.elementUtils)
+									.withElement(method)
+									.forClass(cls)
+									.extract()
+									.getValues();
+
 							String requestMapping = requestMappingAnnotatedValues.getOrDefault("value", "/").replaceAll("\"$", "").replaceAll("^\"", "");
 							if (requestMapping.length() > 1) {
 								String clsName = cls.getSimpleName();

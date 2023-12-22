@@ -1,6 +1,7 @@
 package eu.nerdfactor.springutil.generatedrest.config;
 
 import eu.nerdfactor.springutil.generatedrest.annotation.GeneratedRestSecurity;
+import eu.nerdfactor.springutil.generatedrest.util.AnnotationValueExtractor;
 import eu.nerdfactor.springutil.generatedrest.util.GeneratedRestUtil;
 
 import javax.annotation.processing.RoundEnvironment;
@@ -64,7 +65,12 @@ public class SecurityConfigurationBuilder {
 		String className = element.getSimpleName().toString();
 
 		// Find all the annotated values in the annotation
-		Map<String, String> annotatedValues = GeneratedRestUtil.getAnnotatedValues(element, GeneratedRestSecurity.class.getName(), this.elementUtils);
+		Map<String, String> annotatedValues = new AnnotationValueExtractor()
+				.forClass(GeneratedRestSecurity.class)
+				.withElement(element)
+				.withUtils(elementUtils)
+				.extract()
+				.getValues();
 
 		// Combine the generated class name and package.
 		String generatedClassName = annotatedValues.getOrDefault("className", "");

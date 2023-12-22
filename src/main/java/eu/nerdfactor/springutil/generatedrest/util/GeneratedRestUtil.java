@@ -4,12 +4,7 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 import org.jetbrains.annotations.NotNull;
 
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.AnnotationValue;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.util.Elements;
-import java.util.*;
+import java.util.Arrays;
 
 /**
  * Utility methods for generated rest.
@@ -80,93 +75,6 @@ public class GeneratedRestUtil {
 		String className = typeName.substring(typeName.lastIndexOf('.') + 1).trim();
 		String packageName = removeEnd(typeName, "." + className);
 		return ClassName.get(packageName, prefix + className);
-	}
-
-	/**
-	 * Get all the values from a specific annotation of the element in a Map.
-	 *
-	 * @param element             The element to search within.
-	 * @param annotationClassName The class name of the annotation.
-	 * @param elementUtils        Utility object for elements.
-	 * @return A map of values with name of value as keys.
-	 * @see GeneratedRestUtil#addAnnotatedValues
-	 */
-	public static Map<String, String> getAnnotatedValues(final Element element, final String annotationClassName, Elements elementUtils) {
-		Map<String, String> values = new HashMap<>();
-		return addAnnotatedValues(element, annotationClassName, elementUtils, values);
-	}
-
-	/**
-	 * Add all the values from a specific annotation of the element to a Map.
-	 * https://stackoverflow.com/a/52257877
-	 *
-	 * @param element             The element to search within.
-	 * @param annotationClassName The class name of the annotation.
-	 * @param elementUtils        Utility object for elements.
-	 * @param values              Map that values will be added to.
-	 * @return A map of values with name of value as keys.
-	 */
-	public static Map<String, String> addAnnotatedValues(final Element element, final String annotationClassName, Elements elementUtils, Map<String, String> values) {
-		final Optional<? extends AnnotationMirror> retValue = element.getAnnotationMirrors().stream()
-				.filter(m -> m.getAnnotationType().toString().equals(annotationClassName))
-				.findFirst();
-		if (retValue.isPresent()) {
-			final Map<? extends ExecutableElement, ? extends AnnotationValue> elementValues = elementUtils.getElementValuesWithDefaults(retValue.get());
-			elementValues.forEach((executableElement, annotationValue) -> {
-				try {
-					// todo: Value might be a list; Object v = ((AnnotationValue) annotationValue).getValue(); -> addAnnotatedListValues
-					values.put(executableElement.getSimpleName().toString(), annotationValue.getValue().toString());
-				} catch (Exception e) {
-				}
-			});
-		}
-		return values;
-	}
-
-	/**
-	 * Get all the values from a list of specific annotations of the element to a List of Maps.
-	 *
-	 * @param element             The element to search within.
-	 * @param annotationClassName The class name of the annotation.
-	 * @param elementUtils        Utility object for elements.
-	 * @return A list of map of values with name of value as keys.
-	 * @see GeneratedRestUtil#addAnnotatedValues
-	 */
-	public static List<Map<String, String>> getAnnotatedListValues(final Element element, final String annotationClassName, Elements elementUtils) {
-		List<Map<String, String>> values = new ArrayList<>();
-		return addAnnotatedListValues(element, annotationClassName, elementUtils, values);
-	}
-
-	/**
-	 * Add all the values from a list of specific annotations of the element to a List of Maps.
-	 * https://stackoverflow.com/a/52257877
-	 * todo: Combine with addAnnotatedValues?
-	 *
-	 * @param element             The element to search within.
-	 * @param annotationClassName The class name of the annotation.
-	 * @param elementUtils        Utility object for elements.
-	 * @param values              List of Maps that values will be added to.
-	 * @return A list of map of values with name of value as keys.
-	 */
-	public static List<Map<String, String>> addAnnotatedListValues(final Element element, final String annotationClassName, Elements elementUtils, List<Map<String, String>> values) {
-		final Optional<? extends AnnotationMirror> retValue = element.getAnnotationMirrors().stream()
-				.filter(m -> m.getAnnotationType().toString().equals(annotationClassName))
-				.findFirst();
-		if (retValue.isPresent()) {
-			elementUtils.getElementValuesWithDefaults(retValue.get()).forEach((executableElement, annotationValue) -> {
-				try {
-					((Iterable<?>) annotationValue.getValue()).forEach(o -> {
-						Map<String, String> item = new HashMap<>();
-						elementUtils.getElementValuesWithDefaults((AnnotationMirror) o).forEach((executableElement1, annotationValue1) -> {
-							item.put(executableElement1.getSimpleName().toString(), annotationValue1.getValue().toString());
-						});
-						values.add(item);
-					});
-				} catch (Exception e) {
-				}
-			});
-		}
-		return values;
 	}
 
 	public static boolean LOG = false;
