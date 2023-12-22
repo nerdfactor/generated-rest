@@ -3,6 +3,8 @@ package eu.nerdfactor.springutil.generatedrest.config;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -16,6 +18,7 @@ import java.util.Map;
  *
  * @author Daniel Klug
  */
+@Getter
 public class ControllerConfiguration {
 
 	/**
@@ -74,6 +77,7 @@ public class ControllerConfiguration {
 	 */
 	private boolean withRelations = false;
 
+	@Setter
 	private SecurityConfiguration security;
 
 	private List<String> existingRequests;
@@ -125,70 +129,6 @@ public class ControllerConfiguration {
 	}
 
 
-	public ClassName getClassName() {
-		return className;
-	}
-
-	public String getRequest() {
-		return request;
-	}
-
-	public TypeName getEntity() {
-		return entity;
-	}
-
-	public TypeName getId() {
-		return id;
-	}
-
-	public String getIdAccessor() {
-		return idAccessor;
-	}
-
-	public boolean isWithDtos() {
-		return withDtos;
-	}
-
-	public TypeName getDto() {
-		return dto;
-	}
-
-	public TypeName getResponse() {
-		return response;
-	}
-
-	public ParameterizedTypeName getDataAccessorClass() {
-		return dataAccessorClass;
-	}
-
-	public TypeName getDataMapperClass() {
-		return dataMapperClass;
-	}
-
-	public TypeName getDataMergerClass() {
-		return dataMergerClass;
-	}
-
-	public boolean isWithRelations() {
-		return withRelations;
-	}
-
-	public SecurityConfiguration getSecurity() {
-		return security;
-	}
-
-	public void setSecurity(SecurityConfiguration security) {
-		this.security = security;
-	}
-
-	public Map<String, RelationConfiguration> getRelations() {
-		return relations;
-	}
-
-	public List<String> getExistingRequests() {
-		return existingRequests;
-	}
-
 	public boolean hasExistingRequest(RequestMethod method, String request) {
 		return this.hasExistingRequest(method.name().toUpperCase(), request);
 	}
@@ -197,7 +137,4 @@ public class ControllerConfiguration {
 		return this.existingRequests.contains(method.toUpperCase() + request.toLowerCase());
 	}
 
-	public TypeName getDataWrapper() {
-		return dataWrapper;
-	}
 }

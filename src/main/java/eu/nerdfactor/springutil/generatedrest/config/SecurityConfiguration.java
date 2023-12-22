@@ -3,6 +3,7 @@ package eu.nerdfactor.springutil.generatedrest.config;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 import eu.nerdfactor.springutil.generatedrest.util.GeneratedRestUtil;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -10,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Daniel Klug
  */
+@Getter
 public class SecurityConfiguration {
 
 	ClassName className;
@@ -59,15 +61,4 @@ public class SecurityConfiguration {
 		return new SecurityConfigurationBuilder();
 	}
 
-	public ClassName getClassName() {
-		return className;
-	}
-
-	public String getPattern() {
-		return pattern;
-	}
-
-	public boolean isInclusive() {
-		return inclusive;
-	}
 }
