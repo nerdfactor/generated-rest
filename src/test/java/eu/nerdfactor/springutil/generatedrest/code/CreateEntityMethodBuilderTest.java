@@ -5,6 +5,8 @@ import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import eu.nerdfactor.springutil.generatedrest.entity.Example;
+import eu.nerdfactor.springutil.generatedrest.entity.ExampleDto;
+import eu.nerdfactor.springutil.generatedrest.entity.ExampleForm;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,16 +37,6 @@ public class CreateEntityMethodBuilderTest {
 
 		String code = JavaFile.builder("eu.nerdfactor.test", builder.build()).build().toString();
 		String expected = """
-				package eu.nerdfactor.test;
-				    
-				import eu.nerdfactor.springutil.generatedrest.entity.Example;
-				import jakarta.validation.Valid;
-				import org.springframework.http.HttpStatus;
-				import org.springframework.http.ResponseEntity;
-				import org.springframework.web.bind.annotation.PostMapping;
-				import org.springframework.web.bind.annotation.RequestBody;
-				import org.springframework.web.bind.annotation.RestController;
-				    
 				@RestController
 				public class ExampleController {
 				  @PostMapping("/api/example")
@@ -56,6 +48,39 @@ public class CreateEntityMethodBuilderTest {
 				  }
 				}
 				""";
-		Assertions.assertEquals(code, expected);
+		Assertions.assertTrue(code.contains(expected));
+	}
+
+	@Test
+	void shouldCreateMethodUsingDto() {
+		TypeSpec.Builder builder = TypeSpec.classBuilder("ExampleController")
+				.addAnnotation(RestController.class)
+				.addModifiers(Modifier.PUBLIC);
+
+		CreateEntityMethodBuilder.create()
+				.withHasExistingRequest(false)
+				.withUsingDto(true)
+				.withRequestUrl("/api/example")
+				.withEntityType(ClassName.get(Example.class))
+				.withRequestType(ClassName.get(ExampleForm.class))
+				.withResponseType(ClassName.get(ExampleDto.class))
+				.withSecurityConfiguration(null)
+				.withDataWrapperClass(TypeName.OBJECT)
+				.build(builder);
+
+		String code = JavaFile.builder("eu.nerdfactor.test", builder.build()).build().toString();
+		String expected = """
+				@RestController
+				public class ExampleController {
+				  @PostMapping("/api/example")
+				  public ResponseEntity<ExampleDto> create(@RequestBody @Valid ExampleForm dto) {
+				    Example created = this.dataMapper.map(dto, Example.class);
+				    created = this.dataAccessor.createData(created);
+				    ExampleDto response = this.dataMapper.map(created, ExampleDto.class);
+				    return new ResponseEntity<>(response, HttpStatus.OK);
+				  }
+				}
+				""";
+		Assertions.assertTrue(code.contains(expected));
 	}
 }

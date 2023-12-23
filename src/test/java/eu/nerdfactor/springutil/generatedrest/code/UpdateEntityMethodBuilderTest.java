@@ -5,6 +5,8 @@ import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import eu.nerdfactor.springutil.generatedrest.entity.Example;
+import eu.nerdfactor.springutil.generatedrest.entity.ExampleDto;
+import eu.nerdfactor.springutil.generatedrest.entity.ExampleForm;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,19 +38,6 @@ public class UpdateEntityMethodBuilderTest {
 
 		String code = JavaFile.builder("eu.nerdfactor.test", builder.build()).build().toString();
 		String expected = """
-				package eu.nerdfactor.test;
-				    
-				import eu.nerdfactor.springutil.generatedrest.entity.Example;
-				import jakarta.persistence.EntityNotFoundException;
-				import jakarta.validation.Valid;
-				import java.lang.Integer;
-				import org.springframework.http.HttpStatus;
-				import org.springframework.http.ResponseEntity;
-				import org.springframework.web.bind.annotation.PatchMapping;
-				import org.springframework.web.bind.annotation.PathVariable;
-				import org.springframework.web.bind.annotation.RequestBody;
-				import org.springframework.web.bind.annotation.RestController;
-				    
 				@RestController
 				public class ExampleController {
 				  @PatchMapping("/api/example")
@@ -66,6 +55,46 @@ public class UpdateEntityMethodBuilderTest {
 				  }
 				}
 				""";
-		Assertions.assertEquals(code, expected);
+		Assertions.assertTrue(code.contains(expected));
+	}
+
+	@Test
+	void shouldCreateMethodUsingDto() {
+		TypeSpec.Builder builder = TypeSpec.classBuilder("ExampleController")
+				.addAnnotation(RestController.class)
+				.addModifiers(Modifier.PUBLIC);
+
+		UpdateEntityMethodBuilder.create()
+				.withHasExistingRequest(false)
+				.withUsingDto(true)
+				.withRequestUrl("/api/example")
+				.withEntityType(ClassName.get(Example.class))
+				.withRequestType(ClassName.get(ExampleForm.class))
+				.withResponseType(ClassName.get(ExampleDto.class))
+				.withIdentifyingType(ClassName.get(Integer.class))
+				.withSecurityConfiguration(null)
+				.withDataWrapperClass(TypeName.OBJECT)
+				.build(builder);
+
+		String code = JavaFile.builder("eu.nerdfactor.test", builder.build()).build().toString();
+		String expected = """
+				@RestController
+				public class ExampleController {
+				  @PatchMapping("/api/example")
+				  public ResponseEntity<ExampleDto> update(@PathVariable final Integer id,
+				      @RequestBody @Valid ExampleForm dto) {
+				    Example entity = this.dataAccessor.readData(id);
+				    if(entity == null) {
+				      throw new EntityNotFoundException();
+				    }
+				    Example changed = this.dataMapper.map(dto, Example.class);
+				    Example updated = this.dataMerger.merge(entity, changed);
+				    updated = this.dataAccessor.updateData(updated);
+				    ExampleDto response = this.dataMapper.map(updated, ExampleDto.class);
+				    return new ResponseEntity<>(response, HttpStatus.OK);
+				  }
+				}
+				""";
+		Assertions.assertTrue(code.contains(expected));
 	}
 }

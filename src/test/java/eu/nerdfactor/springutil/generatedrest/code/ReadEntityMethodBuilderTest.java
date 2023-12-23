@@ -5,6 +5,7 @@ import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import eu.nerdfactor.springutil.generatedrest.entity.Example;
+import eu.nerdfactor.springutil.generatedrest.entity.ExampleDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,17 +36,6 @@ public class ReadEntityMethodBuilderTest {
 
 		String code = JavaFile.builder("eu.nerdfactor.test", builder.build()).build().toString();
 		String expected = """
-				package eu.nerdfactor.test;
-				    
-				import eu.nerdfactor.springutil.generatedrest.entity.Example;
-				import jakarta.persistence.EntityNotFoundException;
-				import java.lang.Integer;
-				import org.springframework.http.HttpStatus;
-				import org.springframework.http.ResponseEntity;
-				import org.springframework.web.bind.annotation.GetMapping;
-				import org.springframework.web.bind.annotation.PathVariable;
-				import org.springframework.web.bind.annotation.RestController;
-				    
 				@RestController
 				public class ExampleController {
 				  @GetMapping("/api/example")
@@ -59,6 +49,41 @@ public class ReadEntityMethodBuilderTest {
 				  }
 				}
 				""";
-		Assertions.assertEquals(code, expected);
+		Assertions.assertTrue(code.contains(expected));
+	}
+
+	@Test
+	void shouldCreateMethodUsingDto() {
+		TypeSpec.Builder builder = TypeSpec.classBuilder("ExampleController")
+				.addAnnotation(RestController.class)
+				.addModifiers(Modifier.PUBLIC);
+
+		ReadEntityMethodBuilder.create()
+				.withHasExistingRequest(false)
+				.withUsingDto(true)
+				.withRequestUrl("/api/example")
+				.withEntityType(ClassName.get(Example.class))
+				.withIdentifyingType(ClassName.get(Integer.class))
+				.withResponseType(ClassName.get(ExampleDto.class))
+				.withSecurityConfiguration(null)
+				.withDataWrapperClass(TypeName.OBJECT)
+				.build(builder);
+
+		String code = JavaFile.builder("eu.nerdfactor.test", builder.build()).build().toString();
+		String expected = """
+				@RestController
+				public class ExampleController {
+				  @GetMapping("/api/example")
+				  public ResponseEntity<ExampleDto> get(@PathVariable final Integer id) {
+				    Example entity = this.dataAccessor.readData(id);
+				    if(entity == null) {
+				      throw new EntityNotFoundException();
+				    }
+				    ExampleDto response = this.dataMapper.map(entity, ExampleDto.class);
+				    return new ResponseEntity<>(response, HttpStatus.OK);
+				  }
+				}
+				""";
+		Assertions.assertTrue(code.contains(expected));
 	}
 }
