@@ -94,7 +94,7 @@ public class CreateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 	 * @param responseType The type of object of the response.
 	 * @return The {@link MethodSpec.Builder} of the new method declaration.
 	 */
-	public MethodSpec.Builder createMethodDeclaration(String requestUrl, TypeName requestType, TypeName responseType) {
+	protected MethodSpec.Builder createMethodDeclaration(String requestUrl, TypeName requestType, TypeName responseType) {
 		return MethodSpec.methodBuilder("create")
 				.addAnnotation(AnnotationSpec.builder(PostMapping.class).addMember("value", "$S", requestUrl).build())
 				.addModifiers(Modifier.PUBLIC)
@@ -112,7 +112,7 @@ public class CreateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 	 * @param responseType The type of object of the response.
 	 * @param isUsingDto   If the method is using DTOs.
 	 */
-	public void addMethodBody(MethodSpec.Builder method, TypeName entityType, TypeName requestType, TypeName responseType, boolean isUsingDto) {
+	protected void addMethodBody(MethodSpec.Builder method, TypeName entityType, TypeName requestType, TypeName responseType, boolean isUsingDto) {
 		// If the method is using DTOs, the object from the RequestBody will
 		// be mapped into the type of the Entity.
 		if (isUsingDto) {
