@@ -23,7 +23,7 @@ public class UpdateEntityMethodBuilder extends MethodBuilder {
 			return builder;
 		}
 		GeneratedRestUtil.log("addUpdateEntityMethod", 1);
-		TypeName responseType = this.configuration.getResponse();
+		TypeName responseType = this.configuration.getResponseType();
 		MethodSpec.Builder method = MethodSpec
 				.methodBuilder("update")
 				.addAnnotation(AnnotationSpec.builder(PatchMapping.class).addMember("value", "$S", this.configuration.getRequest() + "/{id}").build())

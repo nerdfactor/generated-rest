@@ -27,7 +27,7 @@ public class SearchMethodBuilder extends MethodBuilder {
 			return builder;
 		}
 		GeneratedRestUtil.log("addSearchAllEntitiesMethod", 1);
-		TypeName responseType = this.configuration.getResponse();
+		TypeName responseType = this.configuration.getResponseType();
 		ParameterizedTypeName responsePage = ParameterizedTypeName.get(ClassName.get(Page.class), responseType);
 		MethodSpec.Builder method = MethodSpec
 				.methodBuilder("searchAll")

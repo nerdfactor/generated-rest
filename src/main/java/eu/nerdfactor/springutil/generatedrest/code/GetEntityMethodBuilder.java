@@ -21,7 +21,7 @@ public class GetEntityMethodBuilder extends MethodBuilder {
 			return builder;
 		}
 		GeneratedRestUtil.log("addGetEntityMethod", 1);
-		TypeName responseType = this.configuration.getResponse();
+		TypeName responseType = this.configuration.getResponseType();
 		MethodSpec.Builder method = MethodSpec
 				.methodBuilder("get")
 				.addAnnotation(AnnotationSpec.builder(GetMapping.class).addMember("value", "$S", this.configuration.getRequest() + "/{id}").build())

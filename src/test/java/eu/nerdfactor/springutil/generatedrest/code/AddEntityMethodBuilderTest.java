@@ -36,7 +36,9 @@ public class AddEntityMethodBuilderTest {
 				.thenReturn("/api/example");
 		Mockito.when(controllerConfiguration.isUsingDto())
 				.thenReturn(false);
-		Mockito.when(controllerConfiguration.getResponse())
+		Mockito.when(controllerConfiguration.getRequestType())
+				.thenReturn(ClassName.get(Example.class));
+		Mockito.when(controllerConfiguration.getSingleResponseType())
 				.thenReturn(ClassName.get(Example.class));
 		Mockito.when(controllerConfiguration.getSecurity())
 				.thenReturn(null);

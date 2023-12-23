@@ -20,7 +20,7 @@ public class ListMethodBuilder extends MethodBuilder {
 			return builder;
 		}
 		GeneratedRestUtil.log("addGetAllEntitiesMethod", 1);
-		TypeName responseType = this.configuration.getResponse();
+		TypeName responseType = this.configuration.getResponseType();
 		ParameterizedTypeName responseList = ParameterizedTypeName.get(ClassName.get(List.class), responseType);
 		MethodSpec.Builder method = MethodSpec
 				.methodBuilder("all")

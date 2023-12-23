@@ -20,7 +20,7 @@ public class SetEntityMethodBuilder extends MethodBuilder {
 			return builder;
 		}
 		GeneratedRestUtil.log("addSetEntityMethod", 1);
-		TypeName responseType = this.configuration.getResponse();
+		TypeName responseType = this.configuration.getResponseType();
 		MethodSpec.Builder method = MethodSpec
 				.methodBuilder("set")
 				.addAnnotation(AnnotationSpec.builder(PutMapping.class).addMember("value", "$S", this.configuration.getRequest() + "/{id}").build())

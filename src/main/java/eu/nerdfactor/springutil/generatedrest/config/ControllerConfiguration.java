@@ -128,15 +128,19 @@ public class ControllerConfiguration {
 		return this.existingRequests.contains(method.toUpperCase() + request.toLowerCase());
 	}
 
-	public TypeName getResponse() {
-		return getSingleResponse();
+	public TypeName getResponseType() {
+		return this.getSingleResponseType();
 	}
 
-	public TypeName getSingleResponse() {
+	public TypeName getSingleResponseType() {
 		return this.isUsingDto() ? this.dto : this.entity;
 	}
 
-	public TypeName getListResponse() {
+	public TypeName getListResponseType() {
+		return this.isUsingDto() ? this.dto : this.entity;
+	}
+
+	public TypeName getRequestType() {
 		return this.isUsingDto() ? this.dto : this.entity;
 	}
 
