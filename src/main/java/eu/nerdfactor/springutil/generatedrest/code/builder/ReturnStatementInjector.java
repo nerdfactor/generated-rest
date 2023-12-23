@@ -13,7 +13,7 @@ public class ReturnStatementInjector implements Injectable<MethodSpec.Builder> {
 
 	protected TypeName responseType;
 
-	protected String responseVariableName;
+	protected String responseVariableName = "response";
 
 	public ReturnStatementInjector withWrapper(TypeName wrapper) {
 		this.wrapperType = wrapper;
