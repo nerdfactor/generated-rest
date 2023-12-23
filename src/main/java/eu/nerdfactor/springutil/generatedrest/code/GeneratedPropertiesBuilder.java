@@ -12,7 +12,7 @@ import org.springframework.data.util.Pair;
 
 import java.util.List;
 
-public class GeneratedPropertiesBuilder extends MultiStepBuilder<TypeSpec.Builder> implements Buildable<TypeSpec.Builder>, ConfiguredBuilder {
+public class GeneratedPropertiesBuilder extends MultiStepBuilder<TypeSpec.Builder> implements Buildable<TypeSpec.Builder>, Configurable<ControllerConfiguration> {
 
 	ControllerConfiguration configuration;
 

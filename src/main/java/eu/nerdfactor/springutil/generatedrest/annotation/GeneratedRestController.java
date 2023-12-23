@@ -46,6 +46,13 @@ public @interface GeneratedRestController {
 	Class<?> dto() default Object.class;
 
 	/**
+	 * Configuration of data transfer object classes.
+	 * Will contain the classes for a single dto, a list dto and a request dto.
+	 * Those classes will be used if dto() is not set.
+	 */
+	DtoConfiguration dtoConfig() default @DtoConfiguration(value = Object.class);
+
+	/**
 	 * By default, endpoints for all the relations annotated with OneToMany, ManyToOne,
 	 * ManyToMany or OneToOne from jpa in the entity will be created. Access to relation
 	 * objects will use methods called get{RelationName}, set{RelationName} and/or

@@ -57,7 +57,7 @@ public class GetSingleRelationMethodBuilder extends MethodBuilder {
 			method.addStatement("$T response = entity." + this.relationConfiguration.getGetter() + "()", responseType);
 		}
 		method = new ReturnStatementInjector()
-				.withWrapper(this.configuration.getDataWrapper())
+				.withWrapper(this.configuration.getDataWrapperClass())
 				.withResponse(responseType)
 				.withResponseVariable("response")
 				.inject(method);

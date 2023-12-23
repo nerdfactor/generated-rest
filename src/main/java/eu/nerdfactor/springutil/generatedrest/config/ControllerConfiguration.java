@@ -45,17 +45,19 @@ public class ControllerConfiguration {
 	private String idAccessor = "getId";
 
 	/**
-	 * The generated controller can use data access objects in responses.
+	 * Type of the DTO in the request.
 	 */
-	private boolean withDtos = false;
+	private TypeName requestDto = TypeName.OBJECT;
 
 	/**
-	 * Class of the data transfer objet that may be in the response of the
-	 * generated controller.
+	 * Type of the DTO used by single object responses.
 	 */
-	private TypeName dto = TypeName.OBJECT;
+	private TypeName singleDto = TypeName.OBJECT;
 
-	private TypeName response = TypeName.OBJECT;
+	/**
+	 * Type of the DTO used by list responses.
+	 */
+	private TypeName listDto = TypeName.OBJECT;
 
 	/**
 	 * Class of a data accessor that can be used to access entities.
@@ -72,17 +74,12 @@ public class ControllerConfiguration {
 
 	private TypeName dataMergerClass;
 
-	/**
-	 * The generated controller can contain methods to access relational data.
-	 */
-	private boolean withRelations = false;
-
 	@Setter
 	private SecurityConfiguration security;
 
 	private List<String> existingRequests;
 
-	private TypeName dataWrapper;
+	private TypeName dataWrapperClass;
 
 	/**
 	 * Map of relations that will be added to the controller.
@@ -94,29 +91,28 @@ public class ControllerConfiguration {
 
 	public ControllerConfiguration(@NotNull ClassName className, @NotNull String request,
 	                               @NotNull TypeName entity, @NotNull TypeName id, @NotNull String idAccessor,
-	                               boolean withDtos, TypeName dto,
+	                               TypeName requestDto, TypeName singleDto, TypeName listDto,
 	                               @NotNull ParameterizedTypeName dataAccessorClass,
 	                               TypeName dataMapperClass, TypeName dataMergerClass,
 	                               @Nullable Map<String, RelationConfiguration> relations,
 	                               List<String> existingRequests,
-	                               TypeName dataWrapper) {
+	                               TypeName dataWrapperClass) {
 		this.className = className;
 		this.request = request;
 		this.entity = entity;
 		this.id = id;
 		this.idAccessor = idAccessor;
-		this.dto = dto;
+		this.requestDto = requestDto;
+		this.singleDto = singleDto;
+		this.listDto = listDto;
 		this.dataAccessorClass = dataAccessorClass;
 		this.dataMapperClass = dataMapperClass;
 		this.dataMergerClass = dataMergerClass;
 		if (relations != null && !relations.isEmpty()) {
-			this.withRelations = true;
 			this.relations = relations;
 		}
-		this.withDtos = withDtos;
-		this.response = this.withDtos && !this.dto.equals(TypeName.OBJECT) ? this.dto : this.entity;
 		this.existingRequests = existingRequests;
-		this.dataWrapper = dataWrapper;
+		this.dataWrapperClass = dataWrapperClass;
 	}
 
 	/**
@@ -135,6 +131,60 @@ public class ControllerConfiguration {
 
 	public boolean hasExistingRequest(String method, String request) {
 		return this.existingRequests.contains(method.toUpperCase() + request.toLowerCase());
+	}
+
+	/**
+	 * Get the Type of the single response object.
+	 *
+	 * @return The Type of the response object.
+	 */
+	public TypeName getResponseType() {
+		return this.getSingleResponseType();
+	}
+
+	/**
+	 * Get the Type of the single response object.
+	 *
+	 * @return The Type of the response object.
+	 */
+	public TypeName getSingleResponseType() {
+		return this.isUsingDto() ? this.singleDto : this.entity;
+	}
+
+	/**
+	 * Get the Type of the list response object.
+	 *
+	 * @return The Type of the response object.
+	 */
+	public TypeName getListResponseType() {
+		return this.isUsingDto() ? this.listDto : this.entity;
+	}
+
+	/**
+	 * Get the Type of the request object.
+	 *
+	 * @return The Type of the request object.
+	 */
+	public TypeName getRequestType() {
+		return this.isUsingDto() ? this.singleDto : this.entity;
+	}
+
+	/**
+	 * Check if the controller uses relations.
+	 *
+	 * @return True if the controller uses relations.
+	 */
+	public boolean isUsingRelations() {
+		return this.relations != null && !this.relations.isEmpty();
+	}
+
+	/**
+	 * Check if the controller uses DTOs.
+	 *
+	 * @return True if the controller uses DTOs.
+	 */
+	public boolean isUsingDto() {
+		return this.singleDto != null && !this.singleDto.equals(TypeName.OBJECT);
 	}
 
 }

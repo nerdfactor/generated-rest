@@ -9,15 +9,14 @@ import eu.nerdfactor.springutil.generatedrest.config.ControllerConfiguration;
 import eu.nerdfactor.springutil.generatedrest.config.SecurityConfiguration;
 import eu.nerdfactor.springutil.generatedrest.util.GeneratedRestUtil;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.With;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.lang.model.element.Modifier;
@@ -25,11 +24,10 @@ import javax.lang.model.element.Modifier;
 @With
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class UpdateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Configurable<ControllerConfiguration> {
+public class ReadEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Configurable<ControllerConfiguration> {
 
 	protected boolean hasExistingRequest;
 	protected String requestUrl;
-	protected TypeName requestType;
 	protected TypeName responseType;
 	protected TypeName entityType;
 	protected TypeName identifyingType;
@@ -37,16 +35,15 @@ public class UpdateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 	protected SecurityConfiguration securityConfiguration;
 	protected TypeName dataWrapperClass;
 
-	public static UpdateEntityMethodBuilder create() {
-		return new UpdateEntityMethodBuilder();
+	public static ReadEntityMethodBuilder create() {
+		return new ReadEntityMethodBuilder();
 	}
 
 	@Override
-	public UpdateEntityMethodBuilder withConfiguration(ControllerConfiguration configuration) {
-		return new UpdateEntityMethodBuilder(
-				configuration.hasExistingRequest(RequestMethod.PATCH, configuration.getRequest() + "/{id}"),
+	public ReadEntityMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
+		return new ReadEntityMethodBuilder(
+				configuration.hasExistingRequest(RequestMethod.GET, configuration.getRequest() + "/{id}"),
 				configuration.getRequest() + "/{id}",
-				configuration.getRequestType(),
 				configuration.getSingleResponseType(),
 				configuration.getEntity(),
 				configuration.getId(),
@@ -58,22 +55,23 @@ public class UpdateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 
 	@Override
 	public TypeSpec.Builder build(TypeSpec.Builder builder) {
+		// Check, if the controller already contains a Get method with the Request Url and an id parameter.
 		if (this.hasExistingRequest) {
 			return builder;
 		}
-		GeneratedRestUtil.log("addUpdateEntityMethod", 1);
+		GeneratedRestUtil.log("addGetEntityMethod", 1);
 
-		MethodSpec.Builder method = this.createMethodDeclaration(this.requestUrl, this.identifyingType, this.responseType, this.requestType);
+		MethodSpec.Builder method = this.createMethodDeclaration(this.requestUrl, this.identifyingType, this.responseType);
 
 		new AuthenticationInjector()
-				.withMethod("UPDATE")
+				.withMethod("READ")
 				.withType(this.entityType)
 				.withSecurityConfig(this.securityConfiguration)
 				.inject(method);
 
 		this.addMethodBody(method, this.entityType, this.responseType, this.isUsingDto);
 
-		method = new ReturnStatementInjector()
+		new ReturnStatementInjector()
 				.withWrapper(this.dataWrapperClass)
 				.withResponse(this.responseType)
 				.inject(method);
@@ -83,8 +81,8 @@ public class UpdateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 	}
 
 	/**
-	 * Create a Path method called "update" with the requestUrl that takes a Valid
-	 * object of requestType from the RequestBody (called "dto") and will return an
+	 * Create a Get method called "get" with the requestUrl that hat takes
+	 * an identifyingType (called "id") from the PathVariable and will return a
 	 * ResponseEntity with an object of responseType.
 	 *
 	 * @param requestUrl      The requested Url.
@@ -92,29 +90,18 @@ public class UpdateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 	 * @param responseType    The type of object of the response.
 	 * @return The {@link MethodSpec.Builder} of the new method declaration.
 	 */
-	protected MethodSpec.Builder createMethodDeclaration(String requestUrl, TypeName identifyingType, TypeName responseType, TypeName requestType) {
-		return MethodSpec.methodBuilder("update")
-				.addAnnotation(AnnotationSpec.builder(PatchMapping.class).addMember("value", "$S", requestUrl).build())
+	protected MethodSpec.Builder createMethodDeclaration(String requestUrl, TypeName identifyingType, TypeName responseType) {
+		return MethodSpec.methodBuilder("get")
+				.addAnnotation(AnnotationSpec.builder(GetMapping.class).addMember("value", "$S", requestUrl).build())
 				.addModifiers(Modifier.PUBLIC)
 				.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), responseType))
-				.addParameter(ParameterSpec.builder(identifyingType, "id")
-						.addModifiers(Modifier.FINAL)
-						.addAnnotation(PathVariable.class)
-						.build()
-				)
-				.addParameter(ParameterSpec.builder(requestType, "dto")
-						.addAnnotation(RequestBody.class)
-						.addAnnotation(Valid.class)
-						.build()
-				);
+				.addParameter(ParameterSpec.builder(identifyingType, "id").addModifiers(Modifier.FINAL).addAnnotation(PathVariable.class).build());
 	}
 
 	/**
 	 * Add a method body that finds an Entity with the help of the
-	 * DataAccessor and the provided id and updates it with the object
-	 * in the RequestBody with the help of the DataMerger and saves
-	 * the changes with the help of the DataAccessor and return the result.
-	 * Will throw a new EntityNotFoundException if no Entity could be
+	 * DataAccessor and the provided id and return the result. Will
+	 * throw a new EntityNotFoundException if no Entity could be
 	 * found.
 	 *
 	 * @param method       The existing {@link MethodSpec.Builder}.
@@ -128,16 +115,11 @@ public class UpdateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 		method.addStatement("throw new $T()", EntityNotFoundException.class);
 		method.endControlFlow();
 		if (isUsingDto) {
-			method.addStatement("$T changed = this.dataMapper.map(dto, $T.class)", entityType, entityType);
+			method.addStatement("$T response = this.dataMapper.map(entity, $T.class)", responseType, responseType);
 		} else {
-			method.addStatement("$T changed = dto", entityType);
-		}
-		method.addStatement("$T updated = this.dataMerger.merge(entity, changed)", entityType);
-		method.addStatement("updated = this.dataAccessor.updateData(updated)");
-		if (isUsingDto) {
-			method.addStatement("$T response = this.dataMapper.map(updated, $T.class)", responseType, responseType);
-		} else {
-			method.addStatement("$T response = updated", responseType);
+			method.addStatement("$T response = entity", responseType);
 		}
 	}
+
+
 }

@@ -55,8 +55,8 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 				.withRelation(this.relationConfiguration.getEntityClass())
 				.withSecurityConfig(this.configuration.getSecurity())
 				.inject(method);
-		if (this.configuration.getDataWrapper() != null && !this.configuration.getDataWrapper().equals(TypeName.OBJECT)) {
-			method.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), ParameterizedTypeName.get(ClassName.bestGuess(this.configuration.getDataWrapper().toString()), responseType)));
+		if (this.configuration.getDataWrapperClass() != null && !this.configuration.getDataWrapperClass().equals(TypeName.OBJECT)) {
+			method.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), ParameterizedTypeName.get(ClassName.bestGuess(this.configuration.getDataWrapperClass().toString()), responseType)));
 		}
 		method.addStatement("return this." + this.relationConfiguration.getMethodName(AccessorType.ADD) + "ById(id, dto." + this.relationConfiguration.getIdAccessor() + "())");
 		builder.addMethod(method.build());
@@ -95,8 +95,8 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 		methodById.endControlFlow();
 		methodById.addStatement("$T rel = this.entityManager.getReference($T.class, relationId)", this.relationConfiguration.getEntityClass(), this.relationConfiguration.getEntityClass());
 		methodById.addStatement("entity." + this.relationConfiguration.getAdder() + "(rel)");
-		if (this.configuration.getDataWrapper() != null && !this.configuration.getDataWrapper().equals(TypeName.OBJECT)) {
-			methodById.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), ParameterizedTypeName.get(ClassName.bestGuess(this.configuration.getDataWrapper().toString()), responseType)));
+		if (this.configuration.getDataWrapperClass() != null && !this.configuration.getDataWrapperClass().equals(TypeName.OBJECT)) {
+			methodById.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), ParameterizedTypeName.get(ClassName.bestGuess(this.configuration.getDataWrapperClass().toString()), responseType)));
 		}
 		methodById.addStatement("return this." + this.relationConfiguration.getMethodName(AccessorType.GET) + "(id)");
 		builder.addMethod(methodById.build());

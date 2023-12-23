@@ -64,7 +64,7 @@ public class GetMultipleRelationsMethodBuilder extends MethodBuilder {
 		method.addStatement("responseList.add(response)");
 		method.endControlFlow();
 		method = new ReturnStatementInjector()
-				.withWrapper(this.configuration.getDataWrapper())
+				.withWrapper(this.configuration.getDataWrapperClass())
 				.withResponse(responseType)
 				.withResponseVariable("responseList")
 				.inject(method);
