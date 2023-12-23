@@ -99,20 +99,20 @@ public class AnnotationValueExtractor {
 	}
 
 	protected void addAnnotatedValues(AnnotationMirror annotationMirror, Map<String, String> values) {
-		this.addAnnotatedValues(annotationMirror, values, "value");
+		this.addAnnotatedValues(annotationMirror, values, "");
 	}
 
-	protected void addAnnotatedValues(AnnotationMirror annotationMirror, Map<String, String> values, String valueAlias) {
+	protected void addAnnotatedValues(AnnotationMirror annotationMirror, Map<String, String> values, final String prefix) {
 		final Map<? extends ExecutableElement, ? extends AnnotationValue> elementValues = this.utils.getElementValuesWithDefaults(annotationMirror);
 		elementValues.forEach((executableElement, annotationValue) -> {
 			try {
-				String name = executableElement.getSimpleName().toString();
+				String name = prefix + executableElement.getSimpleName().toString();
 				Object value = annotationValue.getValue();
 				if (value.getClass().isArray()) {
 					// todo: handle arrays
 				} else if (value instanceof AnnotationValue) {
 					// todo: handle nested annotations
-					addAnnotatedValues((AnnotationMirror) ((AnnotationValue) value).getValue(), values, executableElement.getSimpleName().toString());
+					addAnnotatedValues((AnnotationMirror) ((AnnotationValue) value).getValue(), values, name + "/");
 				} else {
 					values.put(name, value.toString());
 				}
