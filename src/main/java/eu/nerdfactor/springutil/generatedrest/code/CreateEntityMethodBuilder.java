@@ -2,10 +2,17 @@ package eu.nerdfactor.springutil.generatedrest.code;
 
 import com.squareup.javapoet.*;
 import eu.nerdfactor.springutil.generatedrest.code.builder.AuthenticationInjector;
-import eu.nerdfactor.springutil.generatedrest.code.builder.MethodBuilder;
+import eu.nerdfactor.springutil.generatedrest.code.builder.Buildable;
+import eu.nerdfactor.springutil.generatedrest.code.builder.Configurable;
 import eu.nerdfactor.springutil.generatedrest.code.builder.ReturnStatementInjector;
+import eu.nerdfactor.springutil.generatedrest.config.ControllerConfiguration;
+import eu.nerdfactor.springutil.generatedrest.config.SecurityConfiguration;
 import eu.nerdfactor.springutil.generatedrest.util.GeneratedRestUtil;
 import jakarta.validation.Valid;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.With;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,38 +20,64 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.lang.model.element.Modifier;
 
-public class CreateEntityMethodBuilder extends MethodBuilder {
+@With
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+public class CreateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Configurable<ControllerConfiguration> {
+
+	private boolean hasExistingRequest;
+	private String requestUrl;
+	private TypeName requestType;
+	private TypeName responseType;
+	private TypeName entityType;
+	private boolean isUsingDto;
+	private SecurityConfiguration securityConfiguration;
+	private TypeName dataWrapperClass;
+
+	public static CreateEntityMethodBuilder create() {
+		return new CreateEntityMethodBuilder();
+	}
+
+	@Override
+	public CreateEntityMethodBuilder withConfiguration(ControllerConfiguration configuration) {
+		return new CreateEntityMethodBuilder(
+				configuration.hasExistingRequest(RequestMethod.POST, configuration.getRequest()),
+				configuration.getRequest(),
+				configuration.getRequestType(),
+				configuration.getSingleResponseType(),
+				configuration.getEntity(),
+				configuration.isUsingDto(),
+				configuration.getSecurity(),
+				configuration.getDataWrapperClass()
+		);
+	}
 
 	@Override
 	public TypeSpec.Builder build(TypeSpec.Builder builder) {
 		// Check, if the controller already contains a Post method with the Request Url.
-		if (this.configuration.hasExistingRequest(RequestMethod.POST, this.configuration.getRequest())) {
+		if (this.hasExistingRequest) {
 			return builder;
 		}
 		GeneratedRestUtil.log("addCreateEntityMethod", 1);
 
-		// Get the type of incoming and outgoing objects.
-		TypeName responseType = this.configuration.getSingleResponseType();
-		TypeName requestType = this.configuration.getRequestType();
-
 		// Create the method declaration.
-		MethodSpec.Builder method = this.createMethodDeclaration(this.configuration.getRequest(), requestType, responseType);
+		MethodSpec.Builder method = this.createMethodDeclaration(this.requestUrl, this.requestType, this.responseType);
 
 		// Inject a Security Annotation that will require a role of "CREATE"
 		// for the Entity.
 		new AuthenticationInjector().withMethod("CREATE")
-				.withType(this.configuration.getEntity())
-				.withSecurityConfig(this.configuration.getSecurity())
+				.withType(this.entityType)
+				.withSecurityConfig(this.securityConfiguration)
 				.inject(method);
 
 		// Add the method body.
-		this.addMethodBody(method, this.configuration.getEntity(), requestType, responseType, this.configuration.isUsingDto());
+		this.addMethodBody(method, this.entityType, this.requestType, this.responseType, this.isUsingDto);
 
 		// Inject a return statement that will return the response object in a ResponseEntity
 		// that may be wrapped inside the DataWrapper.
 		new ReturnStatementInjector()
-				.withWrapper(this.configuration.getDataWrapperClass())
-				.withResponse(responseType)
+				.withWrapper(this.dataWrapperClass)
+				.withResponse(this.responseType)
 				.inject(method);
 
 		builder.addMethod(method.build());
