@@ -63,7 +63,7 @@ public class SetEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Conf
 		}
 		GeneratedRestUtil.log("addSetEntityMethod", 1);
 
-		MethodSpec.Builder method = this.createMethodDeclaration(this.requestUrl, this.identifyingType, this.responseType);
+		MethodSpec.Builder method = this.createMethodDeclaration(this.requestUrl, this.identifyingType, this.responseType, this.requestType);
 
 		new AuthenticationInjector()
 				.withMethod("UPDATE")
@@ -91,7 +91,7 @@ public class SetEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Conf
 	 * @param responseType    The type of object of the response.
 	 * @return The {@link MethodSpec.Builder} of the new method declaration.
 	 */
-	protected MethodSpec.Builder createMethodDeclaration(String requestUrl, TypeName identifyingType, TypeName responseType) {
+	protected MethodSpec.Builder createMethodDeclaration(String requestUrl, TypeName identifyingType, TypeName responseType, TypeName requestType) {
 		return MethodSpec.methodBuilder("set")
 				.addAnnotation(AnnotationSpec.builder(PutMapping.class).addMember("value", "$S", requestUrl).build())
 				.addModifiers(Modifier.PUBLIC)
@@ -101,7 +101,7 @@ public class SetEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Conf
 						.addAnnotation(PathVariable.class)
 						.build()
 				)
-				.addParameter(ParameterSpec.builder(responseType, "dto")
+				.addParameter(ParameterSpec.builder(requestType, "dto")
 						.addAnnotation(RequestBody.class)
 						.addAnnotation(Valid.class)
 						.build()

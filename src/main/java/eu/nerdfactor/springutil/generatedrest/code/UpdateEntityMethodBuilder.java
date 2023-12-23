@@ -63,7 +63,7 @@ public class UpdateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 		}
 		GeneratedRestUtil.log("addUpdateEntityMethod", 1);
 
-		MethodSpec.Builder method = this.createMethodDeclaration(this.requestUrl, this.identifyingType, this.responseType);
+		MethodSpec.Builder method = this.createMethodDeclaration(this.requestUrl, this.identifyingType, this.responseType, this.requestType);
 
 		new AuthenticationInjector()
 				.withMethod("UPDATE")
@@ -92,7 +92,7 @@ public class UpdateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 	 * @param responseType    The type of object of the response.
 	 * @return The {@link MethodSpec.Builder} of the new method declaration.
 	 */
-	protected MethodSpec.Builder createMethodDeclaration(String requestUrl, TypeName identifyingType, TypeName responseType) {
+	protected MethodSpec.Builder createMethodDeclaration(String requestUrl, TypeName identifyingType, TypeName responseType, TypeName requestType) {
 		return MethodSpec.methodBuilder("update")
 				.addAnnotation(AnnotationSpec.builder(PatchMapping.class).addMember("value", "$S", requestUrl).build())
 				.addModifiers(Modifier.PUBLIC)
@@ -102,7 +102,7 @@ public class UpdateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 						.addAnnotation(PathVariable.class)
 						.build()
 				)
-				.addParameter(ParameterSpec.builder(responseType, "dto")
+				.addParameter(ParameterSpec.builder(requestType, "dto")
 						.addAnnotation(RequestBody.class)
 						.addAnnotation(Valid.class)
 						.build()
