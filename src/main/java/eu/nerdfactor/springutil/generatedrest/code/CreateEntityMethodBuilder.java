@@ -25,14 +25,14 @@ import javax.lang.model.element.Modifier;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class CreateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Configurable<ControllerConfiguration> {
 
-	private boolean hasExistingRequest;
-	private String requestUrl;
-	private TypeName requestType;
-	private TypeName responseType;
-	private TypeName entityType;
-	private boolean isUsingDto;
-	private SecurityConfiguration securityConfiguration;
-	private TypeName dataWrapperClass;
+	protected boolean hasExistingRequest;
+	protected String requestUrl;
+	protected TypeName requestType;
+	protected TypeName responseType;
+	protected TypeName entityType;
+	protected boolean isUsingDto;
+	protected SecurityConfiguration securityConfiguration;
+	protected TypeName dataWrapperClass;
 
 	public static CreateEntityMethodBuilder create() {
 		return new CreateEntityMethodBuilder();

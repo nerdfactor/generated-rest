@@ -25,12 +25,12 @@ import javax.lang.model.element.Modifier;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class DeleteEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Configurable<ControllerConfiguration> {
 
-	private boolean hasExistingRequest;
-	private String requestUrl;
-	private TypeName entityType;
-	private TypeName identifyingType;
-	private SecurityConfiguration securityConfiguration;
-	private TypeName dataWrapperClass;
+	protected boolean hasExistingRequest;
+	protected String requestUrl;
+	protected TypeName entityType;
+	protected TypeName identifyingType;
+	protected SecurityConfiguration securityConfiguration;
+	protected TypeName dataWrapperClass;
 
 	public static DeleteEntityMethodBuilder create() {
 		return new DeleteEntityMethodBuilder();
