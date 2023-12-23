@@ -3,10 +3,8 @@ package eu.nerdfactor.springutil.generatedrest.code.builder;
 import com.squareup.javapoet.*;
 import eu.nerdfactor.springutil.generatedrest.config.ControllerConfiguration;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
-public class MethodBuilder implements Buildable<TypeSpec.Builder>, ConfiguredBuilder {
+public class MethodBuilder implements Buildable<TypeSpec.Builder>, Configurable<ControllerConfiguration> {
 
 	protected ControllerConfiguration configuration;
 

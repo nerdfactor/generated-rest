@@ -2,14 +2,14 @@ package eu.nerdfactor.springutil.generatedrest.code;
 
 import com.squareup.javapoet.TypeSpec;
 import eu.nerdfactor.springutil.generatedrest.code.builder.Buildable;
-import eu.nerdfactor.springutil.generatedrest.code.builder.ConfiguredBuilder;
+import eu.nerdfactor.springutil.generatedrest.code.builder.Configurable;
 import eu.nerdfactor.springutil.generatedrest.code.builder.MultiStepBuilder;
 import eu.nerdfactor.springutil.generatedrest.config.ControllerConfiguration;
 import eu.nerdfactor.springutil.generatedrest.config.RelationConfiguration;
 import eu.nerdfactor.springutil.generatedrest.config.RelationType;
 import org.jetbrains.annotations.NotNull;
 
-public class RelationshipMethodBuilder extends MultiStepBuilder<TypeSpec.Builder> implements ConfiguredBuilder, Buildable<TypeSpec.Builder> {
+public class RelationshipMethodBuilder extends MultiStepBuilder<TypeSpec.Builder> implements Configurable<ControllerConfiguration>, Buildable<TypeSpec.Builder> {
 
 	protected ControllerConfiguration configuration;
 

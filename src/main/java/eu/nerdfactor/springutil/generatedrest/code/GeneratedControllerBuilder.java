@@ -1,7 +1,7 @@
 package eu.nerdfactor.springutil.generatedrest.code;
 
 import com.squareup.javapoet.TypeSpec;
-import eu.nerdfactor.springutil.generatedrest.code.builder.ConfiguredBuilder;
+import eu.nerdfactor.springutil.generatedrest.code.builder.Configurable;
 import eu.nerdfactor.springutil.generatedrest.code.builder.MultiStepBuilder;
 import eu.nerdfactor.springutil.generatedrest.config.ControllerConfiguration;
 import org.jetbrains.annotations.NotNull;
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.lang.model.element.Modifier;
 
-public class GeneratedControllerBuilder extends MultiStepBuilder<TypeSpec.Builder> implements ConfiguredBuilder {
+public class GeneratedControllerBuilder extends MultiStepBuilder<TypeSpec.Builder> implements Configurable<ControllerConfiguration> {
 
 	ControllerConfiguration configuration;
 
