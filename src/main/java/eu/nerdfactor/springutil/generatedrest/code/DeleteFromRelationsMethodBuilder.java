@@ -56,8 +56,8 @@ public class DeleteFromRelationsMethodBuilder extends MethodBuilder {
 				.withRelation(this.relationConfiguration.getEntityClass())
 				.withSecurityConfig(this.configuration.getSecurity())
 				.inject(method);
-		if (this.configuration.getDataWrapper() != null && !this.configuration.getDataWrapper().equals(TypeName.OBJECT)) {
-			method.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), ParameterizedTypeName.get(ClassName.bestGuess(this.configuration.getDataWrapper().toString()), responseType)));
+		if (this.configuration.getDataWrapperClass() != null && !this.configuration.getDataWrapperClass().equals(TypeName.OBJECT)) {
+			method.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), ParameterizedTypeName.get(ClassName.bestGuess(this.configuration.getDataWrapperClass().toString()), responseType)));
 		}
 		method.addStatement("return this." + this.relationConfiguration.getMethodName(AccessorType.REMOVE) + "ById(id, dto." + this.relationConfiguration.getIdAccessor() + "())");
 		builder.addMethod(method.build());
@@ -93,7 +93,7 @@ public class DeleteFromRelationsMethodBuilder extends MethodBuilder {
 		methodById.addStatement("$T rel = this.entityManager.getReference($T.class, relationId)", this.relationConfiguration.getEntityClass(), this.relationConfiguration.getEntityClass());
 		methodById.addStatement("entity." + this.relationConfiguration.getRemover() + "(rel)");
 		methodById = new NoContentStatementInjector()
-				.withWrapper(this.configuration.getDataWrapper())
+				.withWrapper(this.configuration.getDataWrapperClass())
 				.withResponse(responseType)
 				.inject(methodById);
 		builder.addMethod(methodById.build());

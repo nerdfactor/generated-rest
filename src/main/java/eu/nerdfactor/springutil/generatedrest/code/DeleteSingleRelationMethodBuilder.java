@@ -55,7 +55,7 @@ public class DeleteSingleRelationMethodBuilder extends MethodBuilder {
 		method.endControlFlow();
 		method.addStatement("entity." + this.relationConfiguration.getSetter() + "(null)");
 		method = new NoContentStatementInjector()
-				.withWrapper(this.configuration.getDataWrapper())
+				.withWrapper(this.configuration.getDataWrapperClass())
 				.withResponse(responseType)
 				.inject(method);
 		builder.addMethod(method.build());

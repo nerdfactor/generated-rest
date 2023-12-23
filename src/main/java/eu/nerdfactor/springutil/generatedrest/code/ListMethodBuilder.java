@@ -34,7 +34,7 @@ public class ListMethodBuilder extends MethodBuilder {
 				.inject(method);
 		method.addStatement("$T<$T> responseList = new $T<>()", List.class, responseType, ArrayList.class);
 		method.beginControlFlow("for($T entity : this.dataAccessor.listData())", this.configuration.getEntity());
-		if (this.configuration.isWithDtos()) {
+		if (this.configuration.isUsingDto()) {
 			method.addStatement("$T response = this.dataMapper.map(entity, $T.class)", responseType, responseType);
 		} else {
 			method.addStatement("$T response = entity", responseType);
@@ -42,7 +42,7 @@ public class ListMethodBuilder extends MethodBuilder {
 		method.addStatement("responseList.add(response)");
 		method.endControlFlow();
 		method = new ReturnStatementInjector()
-				.withWrapper(this.configuration.getDataWrapper())
+				.withWrapper(this.configuration.getDataWrapperClass())
 				.withResponse(responseType)
 				.withResponseVariable("responseList")
 				.inject(method);

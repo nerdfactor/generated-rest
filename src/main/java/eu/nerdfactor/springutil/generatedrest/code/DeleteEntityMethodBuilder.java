@@ -4,10 +4,7 @@ import com.squareup.javapoet.*;
 import eu.nerdfactor.springutil.generatedrest.code.builder.AuthenticationInjector;
 import eu.nerdfactor.springutil.generatedrest.code.builder.MethodBuilder;
 import eu.nerdfactor.springutil.generatedrest.code.builder.NoContentStatementInjector;
-import eu.nerdfactor.springutil.generatedrest.code.builder.ReturnStatementInjector;
 import eu.nerdfactor.springutil.generatedrest.util.GeneratedRestUtil;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,7 +36,7 @@ public class DeleteEntityMethodBuilder extends MethodBuilder {
 				.inject(method);
 		method.addStatement("this.dataAccessor.deleteDataById(id)");
 		method = new NoContentStatementInjector()
-				.withWrapper(this.configuration.getDataWrapper())
+				.withWrapper(this.configuration.getDataWrapperClass())
 				.withResponse(responseType)
 				.inject(method);
 		builder.addMethod(method.build());

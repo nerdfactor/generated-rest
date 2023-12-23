@@ -5,7 +5,6 @@ import eu.nerdfactor.springutil.generatedrest.code.builder.AuthenticationInjecto
 import eu.nerdfactor.springutil.generatedrest.code.builder.MethodBuilder;
 import eu.nerdfactor.springutil.generatedrest.code.builder.ReturnStatementInjector;
 import eu.nerdfactor.springutil.generatedrest.util.GeneratedRestUtil;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,19 +35,19 @@ public class AddEntityMethodBuilder extends MethodBuilder {
 				.withType(this.configuration.getEntity())
 				.withSecurityConfig(this.configuration.getSecurity())
 				.inject(method);
-		if (this.configuration.isWithDtos()) {
+		if (this.configuration.isUsingDto()) {
 			method.addStatement("$T created = this.dataMapper.map(dto, $T.class)", this.configuration.getEntity(), this.configuration.getEntity());
 		} else {
 			method.addStatement("$T created = dto", responseType);
 		}
 		method.addStatement("created = this.dataAccessor.createData(created)");
-		if (this.configuration.isWithDtos()) {
+		if (this.configuration.isUsingDto()) {
 			method.addStatement("$T response = this.dataMapper.map(created, $T.class)", responseType, responseType);
 		} else {
 			method.addStatement("$T response = created", responseType);
 		}
 		method = new ReturnStatementInjector()
-				.withWrapper(this.configuration.getDataWrapper())
+				.withWrapper(this.configuration.getDataWrapperClass())
 				.withResponse(responseType)
 				.withResponseVariable("response")
 				.inject(method);

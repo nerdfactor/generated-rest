@@ -63,8 +63,8 @@ public class SetSingleRelationMethodBuilder extends MethodBuilder {
 			method.addStatement("$T rel = dto", this.relationConfiguration.getEntityClass());
 		}
 		method.addStatement("entity." + this.relationConfiguration.getSetter() + "(rel)");
-		if (this.configuration.getDataWrapper() != null && !this.configuration.getDataWrapper().equals(TypeName.OBJECT)) {
-			method.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), ParameterizedTypeName.get(ClassName.bestGuess(this.configuration.getDataWrapper().toString()), responseType)));
+		if (this.configuration.getDataWrapperClass() != null && !this.configuration.getDataWrapperClass().equals(TypeName.OBJECT)) {
+			method.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), ParameterizedTypeName.get(ClassName.bestGuess(this.configuration.getDataWrapperClass().toString()), responseType)));
 		}
 		method.addStatement("return this." + this.relationConfiguration.getMethodName(AccessorType.GET) + "(id)");
 		builder.addMethod(method.build());

@@ -55,8 +55,6 @@ public class ControllerConfiguration {
 	 */
 	private TypeName dto = TypeName.OBJECT;
 
-	private TypeName response = TypeName.OBJECT;
-
 	/**
 	 * Class of a data accessor that can be used to access entities.
 	 * This can be a DataAccessController, DataAccessService, DataAccessRepository
@@ -72,17 +70,12 @@ public class ControllerConfiguration {
 
 	private TypeName dataMergerClass;
 
-	/**
-	 * The generated controller can contain methods to access relational data.
-	 */
-	private boolean withRelations = false;
-
 	@Setter
 	private SecurityConfiguration security;
 
 	private List<String> existingRequests;
 
-	private TypeName dataWrapper;
+	private TypeName dataWrapperClass;
 
 	/**
 	 * Map of relations that will be added to the controller.
@@ -99,7 +92,7 @@ public class ControllerConfiguration {
 	                               TypeName dataMapperClass, TypeName dataMergerClass,
 	                               @Nullable Map<String, RelationConfiguration> relations,
 	                               List<String> existingRequests,
-	                               TypeName dataWrapper) {
+	                               TypeName dataWrapperClass) {
 		this.className = className;
 		this.request = request;
 		this.entity = entity;
@@ -110,13 +103,11 @@ public class ControllerConfiguration {
 		this.dataMapperClass = dataMapperClass;
 		this.dataMergerClass = dataMergerClass;
 		if (relations != null && !relations.isEmpty()) {
-			this.withRelations = true;
 			this.relations = relations;
 		}
 		this.withDtos = withDtos;
-		this.response = this.withDtos && !this.dto.equals(TypeName.OBJECT) ? this.dto : this.entity;
 		this.existingRequests = existingRequests;
-		this.dataWrapper = dataWrapper;
+		this.dataWrapperClass = dataWrapperClass;
 	}
 
 	/**
@@ -135,6 +126,26 @@ public class ControllerConfiguration {
 
 	public boolean hasExistingRequest(String method, String request) {
 		return this.existingRequests.contains(method.toUpperCase() + request.toLowerCase());
+	}
+
+	public TypeName getResponse() {
+		return getSingleResponse();
+	}
+
+	public TypeName getSingleResponse() {
+		return this.isUsingDto() ? this.dto : this.entity;
+	}
+
+	public TypeName getListResponse() {
+		return this.isUsingDto() ? this.dto : this.entity;
+	}
+
+	public boolean isUsingRelations() {
+		return this.relations != null && !this.relations.isEmpty();
+	}
+
+	public boolean isUsingDto() {
+		return this.dto != null && !this.dto.equals(TypeName.OBJECT);
 	}
 
 }

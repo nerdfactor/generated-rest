@@ -41,13 +41,13 @@ public class GetEntityMethodBuilder extends MethodBuilder {
 		method.beginControlFlow("if(entity == null)");
 		method.addStatement("throw new $T()", EntityNotFoundException.class);
 		method.endControlFlow();
-		if (this.configuration.isWithDtos()) {
+		if (this.configuration.isUsingDto()) {
 			method.addStatement("$T response = this.dataMapper.map(entity, $T.class)", responseType, responseType);
 		} else {
 			method.addStatement("$T response = entity", responseType);
 		}
 		method = new ReturnStatementInjector()
-				.withWrapper(this.configuration.getDataWrapper())
+				.withWrapper(this.configuration.getDataWrapperClass())
 				.withResponse(responseType)
 				.withResponseVariable("response")
 				.inject(method);

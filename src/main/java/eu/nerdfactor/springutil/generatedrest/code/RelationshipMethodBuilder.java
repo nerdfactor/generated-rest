@@ -21,7 +21,7 @@ public class RelationshipMethodBuilder extends MultiStepBuilder<TypeSpec.Builder
 
 	@Override
 	public TypeSpec.Builder build(TypeSpec.Builder builder) {
-		if (!configuration.isWithRelations() || configuration.getRelations() == null || configuration.getRelations().isEmpty()) {
+		if (!configuration.isUsingRelations() || configuration.getRelations() == null || configuration.getRelations().isEmpty()) {
 			return builder;
 		}
 		for (RelationConfiguration relation : configuration.getRelations().values()) {

@@ -48,20 +48,20 @@ public class UpdateEntityMethodBuilder extends MethodBuilder {
 		method.beginControlFlow("if(entity == null)");
 		method.addStatement("throw new $T()", EntityNotFoundException.class);
 		method.endControlFlow();
-		if (this.configuration.isWithDtos()) {
+		if (this.configuration.isUsingDto()) {
 			method.addStatement("$T changed = this.dataMapper.map(dto, $T.class)", this.configuration.getEntity(), this.configuration.getEntity());
 		} else {
 			method.addStatement("$T changed = dto", this.configuration.getEntity());
 		}
 		method.addStatement("$T updated = this.dataMerger.merge(entity, changed)", this.configuration.getEntity());
 		method.addStatement("updated = this.dataAccessor.updateData(updated)");
-		if (this.configuration.isWithDtos()) {
+		if (this.configuration.isUsingDto()) {
 			method.addStatement("$T response = this.dataMapper.map(updated, $T.class)", responseType, responseType);
 		} else {
 			method.addStatement("$T response = updated", responseType);
 		}
 		method = new ReturnStatementInjector()
-				.withWrapper(this.configuration.getDataWrapper())
+				.withWrapper(this.configuration.getDataWrapperClass())
 				.withResponse(responseType)
 				.withResponseVariable("response")
 				.inject(method);

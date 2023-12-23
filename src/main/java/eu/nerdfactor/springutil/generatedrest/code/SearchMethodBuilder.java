@@ -54,7 +54,7 @@ public class SearchMethodBuilder extends MethodBuilder {
 		method.addStatement("$T<$T> responseList = new $T<>()", List.class, responseType, ArrayList.class);
 		method.addStatement("$T page = this.dataAccessor.searchData(spec, pageable)", ParameterizedTypeName.get(ClassName.get(Page.class), this.configuration.getEntity()));
 		method.beginControlFlow("for($T entity : page.getContent())", this.configuration.getEntity());
-		if (this.configuration.isWithDtos()) {
+		if (this.configuration.isUsingDto()) {
 			method.addStatement("$T response = this.dataMapper.map(entity, $T.class)", responseType, responseType);
 		} else {
 			method.addStatement("$T response = entity", responseType);
@@ -63,7 +63,7 @@ public class SearchMethodBuilder extends MethodBuilder {
 		method.endControlFlow();
 		method.addStatement("$T<$T> responsePage = new $T<>(responseList, page.getPageable(), page.getTotalElements())", Page.class, responseType, DataPage.class);
 		method = new ReturnStatementInjector()
-				.withWrapper(this.configuration.getDataWrapper())
+				.withWrapper(this.configuration.getDataWrapperClass())
 				.withResponse(responseType)
 				.withResponseVariable("responsePage")
 				.inject(method);
