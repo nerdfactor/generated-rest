@@ -22,7 +22,7 @@ public class CrudMethodBuilder extends MultiStepBuilder<TypeSpec.Builder> implem
 		this.and(new ReadEntityMethodBuilder().withConfiguration(this.configuration));
 		this.and(new UpdateEntityMethodBuilder().withConfiguration(this.configuration));
 		this.and(new SetEntityMethodBuilder().withConfiguration(this.configuration));
-		this.and(new DeleteEntityMethodBuilder().withConfiguration(this.configuration));
+		this.and(DeleteEntityMethodBuilder.create().withConfiguration(this.configuration));
 		this.steps.forEach(buildStep -> buildStep.build(builder));
 		return builder;
 	}
