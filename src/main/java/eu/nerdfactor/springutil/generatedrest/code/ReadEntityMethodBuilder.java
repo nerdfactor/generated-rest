@@ -13,10 +13,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.lang.model.element.Modifier;
 
-public class GetEntityMethodBuilder extends MethodBuilder {
+public class ReadEntityMethodBuilder extends MethodBuilder {
 
 	@Override
 	public TypeSpec.Builder build(TypeSpec.Builder builder) {
+		// Check, if the controller already contains a Get method with the Request Url and an id parameter.
 		if (this.configuration.hasExistingRequest(RequestMethod.GET, this.configuration.getRequest() + "/{id}")) {
 			return builder;
 		}

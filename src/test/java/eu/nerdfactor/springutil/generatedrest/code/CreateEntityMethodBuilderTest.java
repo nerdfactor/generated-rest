@@ -21,7 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 
 @ExtendWith(MockitoExtension.class)
-public class AddEntityMethodBuilderTest {
+public class CreateEntityMethodBuilderTest {
 
 	@Mock
 	ControllerConfiguration controllerConfiguration = new ControllerConfiguration();
@@ -48,7 +48,7 @@ public class AddEntityMethodBuilderTest {
 		TypeSpec.Builder builder = TypeSpec.classBuilder("ExampleController")
 				.addAnnotation(RestController.class)
 				.addModifiers(Modifier.PUBLIC);
-		new AddEntityMethodBuilder().withConfiguration(this.controllerConfiguration).build(builder);
+		new CreateEntityMethodBuilder().withConfiguration(this.controllerConfiguration).build(builder);
 
 		String code = JavaFile.builder("eu.nerdfactor.test", builder.build()).build().toString();
 		String expected = """
