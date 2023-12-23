@@ -10,6 +10,7 @@ import eu.nerdfactor.springutil.generatedrest.data.DataMerger;
 import eu.nerdfactor.springutil.generatedrest.util.AnnotationValueExtractor;
 import eu.nerdfactor.springutil.generatedrest.util.GeneratedRestUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.processing.RoundEnvironment;
@@ -97,13 +98,10 @@ public class ControllerConfigurationBuilder {
 		String packageName = this.element != null ? elementUtils.getPackageOf(element).getQualifiedName().toString() : "";
 		String className = this.element != null ? element.getSimpleName().toString() : "";
 
-		// Create class names from the informationen.
+		// Create class names from the information.
 		ClassName entityClass = ClassName.bestGuess(this.annotatedValues.get("entity"));
-		ClassName dtoClass = ClassName.bestGuess(this.annotatedValues.get("dto"));
-		if (dtoClass.equals(ClassName.OBJECT)) {
-			dtoClass = entityClass;
-		}
-		boolean withDto = !entityClass.equals(dtoClass);
+		ClassName[] dtoClasses = this.findDtoClasses(entityClass);
+		boolean withDto = !entityClass.equals(dtoClasses[0]);
 		ClassName idClass = ClassName.bestGuess(this.annotatedValues.get("id"));
 
 		// Combine the generated class name and package.
@@ -186,6 +184,36 @@ public class ControllerConfigurationBuilder {
 			relations = RelationConfiguration.builder().withElement(entityElement).withUtils(this.elementUtils).withClasses(this.dtoClasses).withDtos(withDto).build();
 		}
 
-		return new ControllerConfiguration(GeneratedRestUtil.toClassName(generatedClassName), requestMapping, entityClass, idClass, idAccessor, withDto, withDto ? dtoClass : null, dataAccessorClass, dataMapperClass, dataMergerClass, relations, existingRequests, this.dataWrapper);
+		return new ControllerConfiguration(GeneratedRestUtil.toClassName(generatedClassName), requestMapping, entityClass, idClass, idAccessor, withDto ? dtoClasses[0] : null, withDto ? dtoClasses[1] : null, withDto ? dtoClasses[2] : null, dataAccessorClass, dataMapperClass, dataMergerClass, relations, existingRequests, this.dataWrapper);
+	}
+
+	private ClassName[] findDtoClasses(ClassName entityClass) {
+		ClassName dtoClass = this.findConfiguredDtoClassInAnnotatedValues("dtoConfig/value", "dto", null);
+		if (dtoClass.equals(ClassName.OBJECT)) {
+			dtoClass = entityClass;
+		}
+		ClassName dtoListClass = this.findConfiguredDtoClassInAnnotatedValues("dtoConfig/list", "dtoConfig/value", "dto");
+		if (dtoListClass.equals(ClassName.OBJECT)) {
+			dtoListClass = dtoClass;
+		}
+		ClassName dtoRequestClass = this.findConfiguredDtoClassInAnnotatedValues("dtoConfig/request", "dtoConfig/value", "dto");
+		if (dtoRequestClass.equals(ClassName.OBJECT)) {
+			dtoRequestClass = dtoClass;
+		}
+		return List.of(dtoClass, dtoListClass, dtoRequestClass).toArray(new ClassName[]{});
+	}
+
+	private @NotNull ClassName findConfiguredDtoClassInAnnotatedValues(@NotNull String primaryChoice, @Nullable String secondaryChoice, @Nullable String tertiaryChoice) {
+		String className = Object.class.getCanonicalName();
+		if (!this.annotatedValues.getOrDefault(primaryChoice, className).equals(className)) {
+			className = this.annotatedValues.get(primaryChoice);
+		}
+		if (secondaryChoice != null && className.equals(Object.class.getCanonicalName()) && !this.annotatedValues.getOrDefault(secondaryChoice, className).equals(className)) {
+			className = this.annotatedValues.get(secondaryChoice);
+		}
+		if (tertiaryChoice != null && className.equals(Object.class.getCanonicalName()) && !this.annotatedValues.getOrDefault(tertiaryChoice, className).equals(className)) {
+			className = this.annotatedValues.get(tertiaryChoice);
+		}
+		return ClassName.bestGuess(className);
 	}
 }
