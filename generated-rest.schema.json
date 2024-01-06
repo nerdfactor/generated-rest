@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://nerdfactor.eu/generated-rest/generated-rest.schema.json",
+  "$id": "https://raw.githubusercontent.com/nerdfactor/generated-rest/main/generated-rest.schema.json",
   "title": "Generated Rest",
   "description": "Generated Rest Controller Configuration",
   "type": "object",
