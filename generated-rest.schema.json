@@ -1,0 +1,198 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nerdfactor.eu/generated-rest/generated-rest.schema.json",
+  "title": "Generated Rest",
+  "description": "Generated Rest Controller Configuration",
+  "type": "object",
+  "properties": {
+	"config": {
+	  "description": "Configuration used during generation of REST controllers.",
+	  "type": "object",
+	  "properties": {
+		"exporter": {
+		  "description": "Class name of the GeneratedRestExporter used for exporting.",
+		  "type": "string",
+		  "maxProperties": 1
+		},
+		"classNamePrefix": {
+		  "description": "Prefix that will be used to generated controller class names.",
+		  "type": "string",
+		  "maxProperties": 1
+		},
+		"indentation": {
+		  "description": "The style of indentation for generated classes.",
+		  "type": "string",
+		  "maxProperties": 1
+		},
+		"log": {
+		  "description": "Decide if process is logged.",
+		  "type": "string",
+		  "maxProperties": 1,
+		  "enum": [
+			"true",
+			"false"
+		  ]
+		},
+		"classNamePattern": {
+		  "description": "Pattern to create generated controller class names if the name is not specifically provided.",
+		  "type": "string",
+		  "maxProperties": 1
+		},
+		"dataWrapper": {
+		  "description": "Alternative to ResponseEntity in order to attach additional meta information to the response (i.e. api version).",
+		  "type": "string",
+		  "maxProperties": 1
+		},
+		"dtoNamespace": {
+		  "description": "Namespace for Dto Classes. This will be used to restrict discovery of Dto classes to this namespace.",
+		  "type": "string",
+		  "maxProperties": 1
+		}
+	  },
+	  "required": [
+		"exporter",
+		"classNamePrefix",
+		"indentation",
+		"log",
+		"classNamePattern",
+		"dataWrapper",
+		"dtoNamespace"
+	  ]
+	},
+	"controllers:": {
+	  "description": "Configuration for REST controllers.",
+	  "type": "object",
+	  "additionalProperties": {
+		"description": "One configuration for every controller that will be created.",
+		"type": "object",
+		"properties": {
+		  "className": {
+			"description": "Class name for the controller.",
+			"type": "string"
+		  },
+		  "request": {
+			"description": "Base path for requests to the generated controller.",
+			"type": "string"
+		  },
+		  "entity": {
+			"description": "Class name of the entity that will be accessed by the generated controller.",
+			"type": "string"
+		  },
+		  "id": {
+			"description": "Class name of the id for the accessed entity (use Integer instead of int).",
+			"type": "string"
+		  },
+		  "idAccessor": {
+			"description": "Name of the method used to access the id of the entity.",
+			"type": "string"
+		  },
+		  "requestDto": {
+			"description": "Class name  of the DTO in the request.",
+			"type": "string"
+		  },
+		  "singleDto": {
+			"description": "Class name  of the DTO used by single object responses.",
+			"type": "string"
+		  },
+		  "listDto": {
+			"description": "Class name of the DTO used by list responses.",
+			"type": "string"
+		  },
+		  "dataAccessorClass": {
+			"description": "Class name of a data accessor that can be used to access entities.",
+			"type": "string"
+		  },
+		  "dataMapperClass": {
+			"description": "Class name of a data mapper that will be used to map between entities and DTOs.",
+			"type": "string"
+		  },
+		  "dataMergerClass": {
+			"description": "Class name of a data merger that will be used to merge two entities.",
+			"type": "string"
+		  },
+		  "dataWrapperClass": {
+			"description": "Class name of a class that will be used to wrap the response insted of ResponseEntity.",
+			"type": "string"
+		  },
+		  "existingRequests": {
+			"description": "A list of all requests that should be skipped because they already exist.",
+			"type": "array",
+			"items": [
+			  {
+				"type": "string"
+			  }
+			]
+		  },
+		  "security": {
+			"description": "Security configuration for controller generation.",
+			"type": "object",
+			"properties": {
+			  "className": {
+				"description": "Class name for the controller.",
+				"type": "string"
+			  },
+			  "pattern": {
+				"description": "Pattern for roles that will be checked on rest methods.",
+				"type": "string"
+			  },
+			  "inclusive": {
+				"description": "The security checks can include the base check on relations.",
+				"type": "boolean"
+			  }
+			},
+			"required": [
+			  "className",
+			  "pattern",
+			  "inclusive"
+			]
+		  },
+		  "relations": {
+			"description": "Configuration for relation generation.",
+			"type": "object",
+			"additionalProperties": {
+			  "description": "One configuration for every relation that will be used.",
+			  "type": "object",
+			  "properties": {
+				"properties": {
+				  "name": {
+					"type": "string"
+				  },
+				  "type": {
+					"type": "string"
+				  },
+				  "getter": {
+					"type": "string"
+				  },
+				  "setter": {
+					"type": "string"
+				  },
+				  "adder": {
+					"type": "string"
+				  },
+				  "remover": {
+					"type": "string"
+				  },
+				  "entityClass": {
+					"type": "string"
+				  },
+				  "dtoClass": {
+					"type": "string"
+				  },
+				  "withDtos": {
+					"type": "boolean"
+				  },
+				  "idClass": {
+					"type": "string"
+				  },
+				  "idAccessor": {
+					"type": "string"
+				  }
+				}
+			  }
+			}
+		  }
+		}
+	  }
+	}
+  }
+}
