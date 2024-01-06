@@ -51,6 +51,8 @@ public class SecurityConfiguration {
 		return security;
 	}
 
+	public SecurityConfiguration(){}
+
 	public SecurityConfiguration(ClassName className, String pattern, boolean inclusive) {
 		this.className = className;
 		this.pattern = pattern;
