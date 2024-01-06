@@ -24,9 +24,9 @@ public class ConfigImporter {
 	}
 
 	public GeneratedConfigFile importFromFile(String path, String schemaPath) throws IOException {
-		ObjectMapper objectMapper = new ObjectMapper();
-		JsonSchemaFactory schemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909);
-		JsonNode json = objectMapper.readTree(Files.readString(Path.of(path)));
+		ObjectMapper mapper = ConfigMapper.forFile(path);
+		JsonSchemaFactory schemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
+		JsonNode json = mapper.readTree(Files.readString(Path.of(path)));
 		JsonSchema schema = schemaFactory.getSchema(Files.readString(Path.of(schemaPath)));
 		Set<ValidationMessage> validationResult = schema.validate(json);
 		if (validationResult.isEmpty()) {
