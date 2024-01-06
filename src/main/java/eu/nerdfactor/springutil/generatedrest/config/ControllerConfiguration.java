@@ -1,5 +1,6 @@
 package eu.nerdfactor.springutil.generatedrest.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
@@ -125,10 +126,12 @@ public class ControllerConfiguration {
 	}
 
 
+	@JsonIgnore
 	public boolean hasExistingRequest(RequestMethod method, String request) {
 		return this.hasExistingRequest(method.name().toUpperCase(), request);
 	}
 
+	@JsonIgnore
 	public boolean hasExistingRequest(String method, String request) {
 		return this.existingRequests.contains(method.toUpperCase() + request.toLowerCase());
 	}
@@ -138,6 +141,7 @@ public class ControllerConfiguration {
 	 *
 	 * @return The Type of the response object.
 	 */
+	@JsonIgnore
 	public TypeName getResponseType() {
 		return this.getSingleResponseType();
 	}
@@ -147,6 +151,7 @@ public class ControllerConfiguration {
 	 *
 	 * @return The Type of the response object.
 	 */
+	@JsonIgnore
 	public TypeName getSingleResponseType() {
 		return this.isUsingDto() ? this.singleDto : this.entity;
 	}
@@ -156,6 +161,7 @@ public class ControllerConfiguration {
 	 *
 	 * @return The Type of the response object.
 	 */
+	@JsonIgnore
 	public TypeName getListResponseType() {
 		return this.isUsingDto() ? this.listDto : this.entity;
 	}
@@ -165,6 +171,7 @@ public class ControllerConfiguration {
 	 *
 	 * @return The Type of the request object.
 	 */
+	@JsonIgnore
 	public TypeName getRequestType() {
 		return this.isUsingDto() ? this.singleDto : this.entity;
 	}
@@ -174,6 +181,7 @@ public class ControllerConfiguration {
 	 *
 	 * @return True if the controller uses relations.
 	 */
+	@JsonIgnore
 	public boolean isUsingRelations() {
 		return this.relations != null && !this.relations.isEmpty();
 	}
@@ -183,6 +191,7 @@ public class ControllerConfiguration {
 	 *
 	 * @return True if the controller uses DTOs.
 	 */
+	@JsonIgnore
 	public boolean isUsingDto() {
 		return this.singleDto != null && !this.singleDto.equals(TypeName.OBJECT);
 	}
