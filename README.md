@@ -1,3 +1,6 @@
+> DEPRECATED: Please use https://github.com/nerdfactor/restness
+
+
 # Generated Rest
 
 A simple library to generate REST controllers for a spring boot application.
@@ -11,8 +14,7 @@ your project instead of created during runtime. This allows you to
 
 * Creates controllers for a simple REST Api.
 * Exposes entities and their relations to other entities.
-* Allows for [pagination](https://docs.spring.io/spring-data/rest/docs/current/reference/html/#paging-and-sorting)
-  and [dynamic filtering](https://github.com/turkraft/spring-filter).
+* Allows for [pagination](https://docs.spring.io/spring-data/rest/docs/current/reference/html/#paging-and-sorting) and [dynamic filtering](https://github.com/turkraft/spring-filter).
 * Supports validation of incoming data.
 * Can restrict access to endpoints with spring-security.
 * Allows to map entities to data transfer objects.
